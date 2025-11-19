@@ -1,0 +1,149 @@
+{
+  "commonDetails": {
+    "lat": "",
+    "long": "",
+    "sourceId": "1",
+    "sourceDetails": "Web",
+    "languageToken": "en",
+    "tenantId": "4c0161b2-26d5-4ec4-a84b-4a357aa01c3f",
+    "siteId": "4c0161b2-26d5-4ec4-a84b-4a357aa01c3f",
+    "siteUserId": "4c0161b2-26d5-4ec4-a84b-4a357aa01c3f",
+    "Master-Access-Id": "",
+    "roleId": "2"
+  },
+  "serviceDetails": {
+    "configDetails": {
+      "id": 4,
+      "deviceId": "4ffe7dax60",
+      "cameraId": "4ffe7dax60",
+      "version": "1.1",
+      "tenantId": "4c0161b2-26d5-4ec4-a84b-4a357aa01c3f",
+      "siteId": "577836e8-50ab-4356-a1ba-2e2f115b5e7c",
+      "siteUserId": "eb98d343-ff39-457c-bf78-ba0f361aacd5",
+      "processLogicId": "71c06f50-14a4-414e-bd53-d330d2738d6e",
+      "subProcessLogicId": "d6975465-002b-42ef-b664-c9e941a26300",
+      "screenId": "86fb23c0-5725-4d08-bd9e-6481c7c280d8",
+      "questionId": "b73c5031-fd71-4864-baba-059abc0e16e3",
+      "containerName": "WpWeRZ82sb+ZbWLCJ1vKQXsu5RBea+TEgQ3up8Va4fTy9g==",
+      "connectionString": "f4WMS4c1oZ+bfWDMJ1vXXEwvcYOPiKcREraw4xHxLN1LKnXyn6fmHG9oog1DPrSO9YhOWYeLTnfg0i64jgFC9A5xGGyZAZjD4Ojc/r8GSuIKI0F0aqtdX5qLxJWPAi8EJi36YJK9IW6DSN1PScnOuqW6eJFc2U4KZT2ySW5Crn5IDBN235VS59lvl8hBK/61ofpbS8f5UU8LQRQ2D/bTyYs4sqPSjT96zgmlYU3E/S0jLPDpw2nH4Alh+4B/++zKiJgnpPNMRYcK",
+      "isDeleted": 0,
+      "createdAt": "2025-08-30T00:36:56.38",
+      "siteUserName": "Amara Raja Site Admin",
+      "magicId": "8b8e0e9a-d39b-452d-91d7-121e38099049",
+      "currentIteration": 1,
+      "title": "Single Plate",
+      "captureType": 1,
+      "captureSubType": 0,
+      "inputDetails": {
+        "id": "custom-label-0",
+        "labelUniqueKey": "singleplate",
+        "labelKey": "Extracted",
+        "labelType": 6,
+        "isLabelPreference": 0
+      },
+      "defaultLabels": [
+        {
+          "uniqueId": "e9bef77f-088b-4451-b375-2e30ba942741",
+          "labelName": "Lug Position",
+          "labelIdentifier": "Lug Position"
+        },
+        {
+          "uniqueId": "5fc746b4-ae5a-4da8-895a-9e975985388e",
+          "labelName": "Plate Height",
+          "labelIdentifier": "Plate Height"
+        },
+        {
+          "uniqueId": "1fe6706d-9a24-4d83-bba7-0d693874827c",
+          "labelName": "Improper Filling",
+          "labelIdentifier": "Improper Filling"
+        },
+        {
+          "uniqueId": "new-deffe7c48ed-9146-4424-b715-11a0138778d6",
+          "labelName": "Frame Bend",
+          "labelIdentifier": "Frame bend"
+        },
+        {
+          "uniqueId": "39f40e10-5808-4bc2-b024-79d5557add22",
+          "labelName": "Paste on Lug",
+          "labelIdentifier": "Paste on Lug"
+        },
+        {
+          "uniqueId": "cd3e1fcd-9e57-4157-ba26-c43556d7f09d",
+          "labelName": "Excess Backing Paper",
+          "labelIdentifier": "Excess backing paper"
+        },
+        {
+          "uniqueId": "6773fce0-6b46-424d-afec-c2ee7f7b5859",
+          "labelName": "Plate Damage",
+          "labelIdentifier": "Plate damage"
+        }
+      ],
+      "statusList": [
+        [
+          {
+            "id": "1",
+            "name": "Okay",
+            "isViewOnly": 1,
+            "textColor": "#0D8A47",
+            "fillColor": "#E6FFEA",
+            "availableStatus": ""
+          },
+          {
+            "id": "2",
+            "name": "Not Okay",
+            "isViewOnly": 1,
+            "textColor": "#f44336",
+            "fillColor": "#FFE3E3",
+            "availableStatus": ""
+          }
+        ]
+      ]
+    },
+    "resultDetails": {
+      "processId": "7fb302f9-5731-4a95-9471-e35f96dd15b9_20251119152818872941",
+      "id": "f9b3e3c0-b8a5-496a-b48d-9eb3d0d34356_20251119152819015545",
+      "url": "https://fofpocadls.blob.core.windows.net/automodeltrainings/ApiData/f9b3e3c0-b8a5-496a-b48d-9eb3d0d34356_20251119152819015545.jpg",
+      "resultId": 1,
+      "height": 1280,
+      "width": 1024,
+      "dateTime": "2025-11-19T09:58:19.000Z",
+      "batchId": "c40f6cf6-31c2-457e-8280-bbb921099288_20251119152947525290",
+      "batchCount": 500,
+      "batchPassCount": 500,
+      "batchFailCount": 0,
+      "plateType": "Unknown",
+      "labelValue": {
+        "annotatedDetails": [
+          {
+            "name": "Plate Height",
+            "type": 1,
+            "coordinates": [
+              {
+                "x": 92,
+                "y": 201
+              },
+              {
+                "x": 1022,
+                "y": 1181
+              }
+            ]
+          },
+          {
+            "name": "Lug Position",
+            "type": 1,
+            "coordinates": [
+              {
+                "x": 589,
+                "y": 196
+              },
+              {
+                "x": 720,
+                "y": 293
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

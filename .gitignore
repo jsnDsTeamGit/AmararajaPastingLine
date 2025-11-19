@@ -4,3 +4,7 @@
 *.gif   
 *.json
 *.jpeg
+
+!**/configData.json
+!**/lastPlateType.json
+!**/save.json
