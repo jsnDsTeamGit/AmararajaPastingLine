@@ -3,7 +3,6 @@ import sys
 import time
 import json
 import uuid
-import ChangeDir
 import threading
 from datetime import datetime,timezone
 from crytoGraphy import decrypt
@@ -111,8 +110,7 @@ if localVersion != jsonVersion:
         sys.exit(1)
     restart_program()
 
-if __name__ == "__main__":
-    threading.Thread(target=SaveMain, name="SaveApi", daemon=False).start()
-    threading.Thread(target=watch_folder, name="BatchProcess", daemon=False).start()
-    threading.Thread(target=startCam1, name="Cam1", daemon=False).start()
-    threading.Thread(target=start_pipeline, name="ModelProcess", daemon=False).start()
+threading.Thread(target=SaveMain, name="SaveApi", daemon=False).start()
+threading.Thread(target=watch_folder, name="BatchProcess", daemon=False).start()
+threading.Thread(target=startCam1, name="Cam1", daemon=False).start()
+threading.Thread(target=start_pipeline, name="ModelProcess", daemon=False).start()

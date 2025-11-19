@@ -100,17 +100,17 @@
       ]
     },
     "resultDetails": {
-      "processId": "543915db-3fab-45da-a49b-abbacb45df7b_20251119181131453084",
-      "id": "935298ae-c6f5-4b14-928f-a8e775848528_20251119181131610401",
-      "url": "https://fofpocadls.blob.core.windows.net/automodeltrainings/ApiData/935298ae-c6f5-4b14-928f-a8e775848528_20251119181131610401.jpg",
+      "processId": "7fb302f9-5731-4a95-9471-e35f96dd15b9_20251119152818872941",
+      "id": "f9b3e3c0-b8a5-496a-b48d-9eb3d0d34356_20251119152819015545",
+      "url": "https://fofpocadls.blob.core.windows.net/automodeltrainings/ApiData/f9b3e3c0-b8a5-496a-b48d-9eb3d0d34356_20251119152819015545.jpg",
       "resultId": 1,
       "height": 1280,
       "width": 1024,
-      "dateTime": "2025-11-19T12:41:31.000Z",
-      "batchId": "7b63050a-5696-403b-90ff-1a6d31ea8faa_20251119181242728358",
+      "dateTime": "2025-11-19T09:58:19.000Z",
+      "batchId": "c40f6cf6-31c2-457e-8280-bbb921099288_20251119152947525290",
       "batchCount": 500,
-      "batchPassCount": 498,
-      "batchFailCount": 2,
+      "batchPassCount": 500,
+      "batchFailCount": 0,
       "plateType": "Unknown",
       "labelValue": {
         "annotatedDetails": [
@@ -119,12 +119,12 @@
             "type": 1,
             "coordinates": [
               {
-                "x": 37,
-                "y": 228
+                "x": 92,
+                "y": 201
               },
               {
-                "x": 975,
-                "y": 1196
+                "x": 1022,
+                "y": 1181
               }
             ]
           },
@@ -133,12 +133,12 @@
             "type": 1,
             "coordinates": [
               {
-                "x": 539,
-                "y": 222
+                "x": 589,
+                "y": 196
               },
               {
-                "x": 671,
-                "y": 321
+                "x": 720,
+                "y": 293
               }
             ]
           }
