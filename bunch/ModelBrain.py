@@ -23,8 +23,8 @@ correctedAnnotations = {
     'Flashes on Lug': 'Flashes on Lug',
     'Plate Bend':'Plate bend'
 }
-
 ResultFolder = r"ModelResults"
+os.makedirs(ResultFolder, exist_ok=True)
 
 SOURCE_DIR = r"LineData"
 EXTS = {".jpg", ".jpeg", ".png", ".bmp", ".tif", ".tiff"}
@@ -41,28 +41,6 @@ WORKERS = 2                        # IO+inference workers; keep small unless mod
 # -------------------- Your existing helpers (unchanged) --------------------
 LOG_FILE = os.path.join(os.path.dirname(sys.executable if getattr(sys, "frozen", False) else __file__),
                         "MultiplatePlateModel.log")
-
-def DamagedPlateCoords(detectedROIbbox, filteredDamages):
-    results = []
-    roiYmin = int(detectedROIbbox.get('y1'))
-    roiYmax = int(detectedROIbbox.get('y2'))
-    roiH = roiYmax - roiYmin
-    if roiH <= 0:
-        return results
-
-    pxPerPlate = roiH / 50.0
-    identifiedPlatesData = []
-    for dmg in filteredDamages:
-        dmgBox = dmg.get('box', {})
-        dmgYmin = int(dmgBox.get('y1'))
-        dmgYmax = int(dmgBox.get('y2'))
-
-        dmgStartPlate = int((dmgYmin - roiYmin) / pxPerPlate)
-        dmgEndPlate = int((dmgYmax - roiYmin) / pxPerPlate)
-        dmg["startPlate"] = dmgStartPlate
-        dmg["endPlate"] = dmgEndPlate
-        identifiedPlatesData.append(dmg)
-    return identifiedPlatesData
 
 def log(msg: str):
     try:
@@ -132,19 +110,12 @@ def AnalyseImage(image, processId):
     detectedRois = [i for i in predictionDect if i['name'] == 'ROI']
     if not detectedRois:
         return "Success"
+
+    detectedRois = MaxRoi(detectedRois)
     filteredDamages = [i for i in predictionDect if i['name'] not in ['ROI'] and BBoxCheck(detectedRois[0], i)]
     status = "Fail" if filteredDamages else "Pass"
-    damagePlateCoords = []
-    if filteredDamages:
-        damagePlateCoords = DamagedPlateCoords(detectedRois[0]["box"], filteredDamages)
-    damagePlateCoords.append(detectedRois[0])
-    data = {
-        "status": status,
-        "height": h,
-        "width": w,
-        "processId": processId,
-        "predictionData": damagePlateCoords,
-    }
+    filteredDamages.append(detectedRois[0])
+    data = {"status": status, "height": h, "width": w, "processId": processId, "predictionData": filteredDamages}
     with open(os.path.join(ResultFolder, f"{imgId}.json"), "w") as f:
         json.dump(data, f, indent=4)
     imgSavePath = os.path.join(ResultFolder, f"{imgId}.jpg")

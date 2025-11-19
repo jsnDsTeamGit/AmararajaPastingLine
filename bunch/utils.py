@@ -144,9 +144,7 @@ def GetAnnotatedDetails(predictions):
         annotatedDetails.append({
             "name": name,
             "type":1,
-            "coordinates": coords,
-            "startArea":pred.get("startPlate", 0),
-            "endArea":pred.get("endPlate", 0)
+            "coordinates": coords
         })
     return annotatedDetails
 
