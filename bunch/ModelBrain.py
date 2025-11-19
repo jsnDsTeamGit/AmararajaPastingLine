@@ -23,8 +23,8 @@ correctedAnnotations = {
     'Flashes on Lug': 'Flashes on Lug',
     'Plate Bend':'Plate bend'
 }
-
 ResultFolder = r"ModelResults"
+os.makedirs(ResultFolder, exist_ok=True)
 
 SOURCE_DIR = r"LineData"
 EXTS = {".jpg", ".jpeg", ".png", ".bmp", ".tif", ".tiff"}

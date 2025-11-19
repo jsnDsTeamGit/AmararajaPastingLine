@@ -15,8 +15,8 @@ from ModelClass import YoloDetection
 
 # -------------------- Existing config & folders --------------------
 model = YoloDetection("model.pt", "yolo")
-
 ResultFolder = r"ModelResults"
+os.makedirs(ResultFolder, exist_ok=True)
 
 
 SOURCE_DIR  = r"LineData"
