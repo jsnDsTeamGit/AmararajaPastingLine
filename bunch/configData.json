@@ -1,0 +1,87 @@
+{
+    "responseCode": "200",
+    "responseResult": {
+        "configDetails": {
+            "id": 5,
+            "deviceId": "xoa9mot9md",
+            "cameraId": "xoa9mot9md",
+            "version": "1.2",
+            "tenantId": "4c0161b2-26d5-4ec4-a84b-4a357aa01c3f",
+            "siteId": "577836e8-50ab-4356-a1ba-2e2f115b5e7c",
+            "siteUserId": "eb98d343-ff39-457c-bf78-ba0f361aacd5",
+            "processLogicId": "dd0c2a16-faf0-497b-8cc1-6e2486c86199",
+            "subProcessLogicId": "6cc83747-04e2-4880-9c26-6c0db2eb4657",
+            "screenId": "b235c30f-82f3-4fd8-90f3-4686b54353a1",
+            "questionId": "8882e3b9-d52d-4993-8113-5f14cb935c27",
+            "containerName": "WpWeRZ82sb+ZbWLCJ1vKQXsu5RBea+TEgQ3up8Va4fTy9g==",
+            "connectionString": "f4WMS4c1oZ+bfWDMJ1vXXEwvcYOPiKcREraw4xHxLN1LKnXyn6fmHG9oog1DPrSO9YhOWYeLTnfg0i64jgFC9A5xGGyZAZjD4Ojc/r8GSuIKI0F0aqtdX5qLxJWPAi8EJi36YJK9IW6DSN1PScnOuqW6eJFc2U4KZT2ySW5Crn5IDBN235VS59lvl8hBK/61ofpbS8f5UU8LQRQ2D/bTyYs4sqPSjT96zgmlYU3E/S0jLPDpw2nH4Alh+4B/++zKiJgnpPNMRYcK",
+            "isDeleted": 0,
+            "createdAt": "2025-08-30T00:37:20.627",
+            "siteUserName": "Amara Raja Site Admin",
+            "magicId": "35a6c9cc-a657-4747-be54-9e7d841e7f29",
+            "currentIteration": 2,
+            "title": "Stacked Bunch",
+            "captureType": 1,
+            "captureSubType": 0,
+            "inputDetails": {
+                "id": "custom-label-0",
+                "labelUniqueKey": "stackedbunch",
+                "labelKey": "Extracted",
+                "labelType": 6,
+                "isLabelPreference": 0
+            },
+            "defaultLabels": [
+                {
+                    "uniqueId": "fe7c48ed-9146-4424-b715-11a0138778d6",
+                    "labelName": "Plate Edge Damage",
+                    "labelIdentifier": "Plate edge damage"
+                },
+                {
+                    "uniqueId": "fe7c48ed-9146-4424-b715-11a0138778d7",
+                    "labelName": "ROI",
+                    "labelIdentifier": "ROI"
+                },
+                {
+                    "uniqueId": "46d80292-4991-4105-aee2-41fe163d3593",
+                    "labelName": "Wire Bend",
+                    "labelIdentifier": "Wire Bend"
+                },
+                {
+                    "uniqueId": "aa878fc4-4de6-46dd-b3b3-b5f27d5c8551",
+                    "labelName": "Excess Backing Paper",
+                    "labelIdentifier": "Excess backing paper"
+                },
+                {
+                    "uniqueId": "a160f3c2-a8c6-4301-b9dc-0ec2d99253bf",
+                    "labelName": "Flashes on Lug",
+                    "labelIdentifier": "Flashes on Lug"
+                },
+                {
+                    "uniqueId": "df965285-aa3e-4c20-9c37-db1730b50119",
+                    "labelName": "Plate Bend",
+                    "labelIdentifier": "Plate bend"
+                }
+            ],
+            "statusList": [
+                [
+                    {
+                        "id": "1",
+                        "name": "Okay",
+                        "isViewOnly": 1,
+                        "textColor": "#0D8A47",
+                        "fillColor": "#E6FFEA",
+                        "availableStatus": ""
+                    },
+                    {
+                        "id": "2",
+                        "name": "Not Okay",
+                        "isViewOnly": 1,
+                        "textColor": "#f44336",
+                        "fillColor": "#FFE3E3",
+                        "availableStatus": ""
+                    }
+                ]
+            ]
+        }
+    }
+}
