@@ -5,6 +5,7 @@
 *.json
 *.jpeg
 *.log
+*.txt
 !**/configData.json
 !**/lastPlateType.json
 !**/save.json
