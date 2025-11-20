@@ -42,6 +42,28 @@ WORKERS = 2                        # IO+inference workers; keep small unless mod
 LOG_FILE = os.path.join(os.path.dirname(sys.executable if getattr(sys, "frozen", False) else __file__),
                         "MultiplatePlateModel.log")
 
+def DamagedPlateCoords(detectedROIbbox, filteredDamages):
+    results = []
+    roiYmin = int(detectedROIbbox.get('y1'))
+    roiYmax = int(detectedROIbbox.get('y2'))
+    roiH = roiYmax - roiYmin
+    if roiH <= 0:
+        return results
+
+    pxPerPlate = roiH / 50.0
+    identifiedPlatesData = []
+    for dmg in filteredDamages:
+        dmgBox = dmg.get('box', {})
+        dmgYmin = int(dmgBox.get('y1'))
+        dmgYmax = int(dmgBox.get('y2'))
+
+        dmgStartPlate = int((dmgYmin - roiYmin) / pxPerPlate)
+        dmgEndPlate = int((dmgYmax - roiYmin) / pxPerPlate)
+        dmg["startPlate"] = dmgStartPlate
+        dmg["endPlate"] = dmgEndPlate
+        identifiedPlatesData.append(dmg)
+    return identifiedPlatesData
+
 def log(msg: str):
     try:
         with open(LOG_FILE, "a", encoding="utf-8") as f:
@@ -114,6 +136,17 @@ def AnalyseImage(image, processId):
     detectedRois = MaxRoi(detectedRois)
     filteredDamages = [i for i in predictionDect if i['name'] not in ['ROI'] and BBoxCheck(detectedRois[0], i)]
     status = "Fail" if filteredDamages else "Pass"
+    damagePlateCoords = []
+    if filteredDamages:
+        damagePlateCoords = DamagedPlateCoords(detectedRois[0]["box"], filteredDamages)
+    damagePlateCoords.append(detectedRois[0])
+    data = {
+        "status": status,
+        "height": h,
+        "width": w,
+        "processId": processId,
+        "predictionData": damagePlateCoords,
+    }
     filteredDamages.append(detectedRois[0])
     data = {"status": status, "height": h, "width": w, "processId": processId, "predictionData": filteredDamages}
     with open(os.path.join(ResultFolder, f"{imgId}.json"), "w") as f:

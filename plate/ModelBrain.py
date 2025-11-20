@@ -135,9 +135,9 @@ def AnalyseImage(image, processId):
     # detectedRois = MaxRoi(detectedRois) 
     isNeg = IsNegative(h, w, detectedRois[0].get("box", {}), thresh=35)
     if isNeg:
-        os.makedirs("doublePlateImages", exist_ok=True)
-        imgSavePath = os.path.join("doublePlateImages", f"{str(uuid.uuid4())}.jpg")
-        cv2.imwrite(imgSavePath, image)
+        # os.makedirs("doublePlateImages", exist_ok=True)
+        # imgSavePath = os.path.join("doublePlateImages", f"{str(uuid.uuid4())}.jpg")
+        # cv2.imwrite(imgSavePath, image)
         return "Success"
     filteredDamages = [i for i in predictionDect if i['name'] not in ['Plate Height', 'Lug Position','Frame bend','Light','Paste on Lug','Improper Filling'] and BBoxCheck(detectedRois[0], i)]
     filteredIMFilling = [i for i in predictionDect if i['name'] == 'Improper Filling' and FindImproperFilling(detectedRois[0],detectedLugs[0],i) and BBoxCheck(detectedRois[0],i) ]
