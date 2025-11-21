@@ -1,4 +1,3 @@
-
 import os
 import cv2
 import sys
@@ -15,6 +14,7 @@ from ModelClass import YoloDetection
 
 # -------------------- Existing config & folders --------------------
 model = YoloDetection("model.pt", "yolo")
+
 ResultFolder = r"ModelResults"
 os.makedirs(ResultFolder, exist_ok=True)
 
@@ -35,15 +35,15 @@ WORKERS = 2                        # IO+inference workers; keep small unless mod
 LOG_FILE = os.path.join(os.path.dirname(sys.executable if getattr(sys, "frozen", False) else __file__),
                         "SinglePlateModel.log")
 
-def IsNegative(imgH, imgW, bbox, thresh = 35):
+def PlateChecker(imgH, imgW, bbox, paddingThresh = 10):
     x1,y1,x2,y2 = map(int, (bbox.get("x1",0), bbox.get("y1",0), bbox.get("x2",0), bbox.get("y2",0)))
-    x1 = max(0, x1)
-    x2 = min(imgW, x2)
-    minDist = x1
-    maxDist = imgW - x2
-    minDistPercent = int((minDist / imgW) * 100)
-    maxDistPercent = int((maxDist / imgW) * 100)
-    if (minDistPercent or maxDistPercent) > thresh:
+    padBoxX1 = int(max(0, (paddingThresh/100) * imgW))
+    padBoxY1 = int(max(0, (paddingThresh/100) * imgH))
+    padBoxX2 = int(min(imgW, (1-(paddingThresh/100)) * imgW))
+    padBoxY2 = int(min(imgH, (1-(paddingThresh/100)) * imgH))
+    # cv2.rectangle(img, (padBoxX1, padBoxY1), (padBoxX2, padBoxY2), (0,0,255), 2)
+    # cv2.imwrite("plateCheckDebug_0_015.jpg", img)
+    if x1 >= padBoxX1 and y1 >= padBoxY1 and x2 <= padBoxX2 and y2 <= padBoxY2:
         return True
     return False
 
@@ -132,12 +132,11 @@ def AnalyseImage(image, processId):
         # imgSavePath = os.path.join(ResultFolder, f"{imgId}.jpg")
         # cv2.imwrite(imgSavePath, image)
         return "Success"
-    # detectedRois = MaxRoi(detectedRois) 
-    isNeg = IsNegative(h, w, detectedRois[0].get("box", {}), thresh=35)
-    if isNeg:
-        # os.makedirs("doublePlateImages", exist_ok=True)
-        # imgSavePath = os.path.join("doublePlateImages", f"{str(uuid.uuid4())}.jpg")
-        # cv2.imwrite(imgSavePath, image)
+    isPlateChecker = PlateChecker(h, w, detectedRois[0].get("box", {}), paddingThresh=0.50)
+    if not isPlateChecker:
+        os.makedirs("doublePlateImages", exist_ok=True)
+        imPath = os.path.join("doublePlateImages", f"{imgId}.jpg")
+        cv2.imwrite(imPath, image)
         return "Success"
     filteredDamages = [i for i in predictionDect if i['name'] not in ['Plate Height', 'Lug Position','Frame bend','Light','Paste on Lug','Improper Filling'] and BBoxCheck(detectedRois[0], i)]
     filteredIMFilling = [i for i in predictionDect if i['name'] == 'Improper Filling' and FindImproperFilling(detectedRois[0],detectedLugs[0],i) and BBoxCheck(detectedRois[0],i) ]
@@ -273,4 +272,3 @@ def start_pipeline():
 
 # # -------------------- Boot --------------------
 # start_pipeline()
-
