@@ -115,8 +115,8 @@ def process_batch(batch_folder, output_folder, batch_no):
             img_file = os.path.splitext(jf)[0] + ".jpg"
             json_path = os.path.join(batch_folder, jf)
             if idx == 0:
-                plate_type = get_latest_plate_type_with_timeout(get_file_created_iso(json_path), timeout=8)
-                # plate_type = "Unknown"
+                # plate_type = get_latest_plate_type_with_timeout(get_file_created_iso(json_path), timeout=8)
+                plate_type = "Unknown"
                 if plate_type is None:
                     with open("lastPlateType.json", "w") as f:
                         json.dump({"plate_type": "Unknown"}, f)

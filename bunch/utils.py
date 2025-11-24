@@ -2,8 +2,9 @@ import os
 import sys
 import json
 import time
-import requests
 import pyodbc
+import requests
+import concurrent.futures
 from crytoGraphy import decrypt
 from blobConnect import upload_blob
 from datetime import datetime, timezone,timedelta
@@ -111,6 +112,17 @@ def get_latest_plate_type(timestamp_str):
     except Exception as e:
         print(f"Database error: {e}")
         return None
+    
+def get_latest_plate_type_with_timeout(timestamp_str, timeout=5):
+    try:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
+            future = executor.submit(get_latest_plate_type, timestamp_str)
+            return future.result(timeout=timeout)  # Wait max 5 seconds
+    except concurrent.futures.TimeoutError:
+        return "Unknown"
+    except Exception as e:
+        log(f"Error in wrapper: {e}")
+        return "Unknown"
       
 def restart_program():
     try:
