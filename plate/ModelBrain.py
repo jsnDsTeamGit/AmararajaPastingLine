@@ -42,7 +42,7 @@ def PlateChecker(imgH, imgW, bbox, paddingThresh = 10):
     padBoxX2 = int(min(imgW, (1-(paddingThresh/100)) * imgW))
     padBoxY2 = int(min(imgH, (1-(paddingThresh/100)) * imgH))
     # cv2.rectangle(img, (padBoxX1, padBoxY1), (padBoxX2, padBoxY2), (0,0,255), 2)
-    # cv2.imwrite("plateCheckDebug_chk.jpg", img)
+    # cv2.imwrite("plateCheckDebug_0_03.jpg", img)
     if x1 >= padBoxX1 and y1 >= padBoxY1 and x2 <= padBoxX2 and y2 <= padBoxY2:
         return True
     return False
@@ -132,7 +132,7 @@ def AnalyseImage(image, processId):
         # imgSavePath = os.path.join(ResultFolder, f"{imgId}.jpg")
         # cv2.imwrite(imgSavePath, image)
         return "Success"
-    isPlateChecker = PlateChecker(h, w, detectedRois[0].get("box", {}), paddingThresh=0.03)
+    isPlateChecker = PlateChecker(h, w, detectedRois[0].get("box", {}), paddingThresh=3)
     if not isPlateChecker:
         os.makedirs("doublePlateImages", exist_ok=True)
         imPath = os.path.join("doublePlateImages", f"{imgId}.jpg")
@@ -271,4 +271,4 @@ def start_pipeline():
 
 
 # # -------------------- Boot --------------------
-# start_pipeline()
+start_pipeline()
