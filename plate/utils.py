@@ -85,10 +85,10 @@ def get_latest_plate_type(timestamp_str):
 
         conn = pyodbc.connect(
             "DRIVER={ODBC Driver 17 for SQL Server};"
-            "SERVER=10.120.0.129;"
-            "DATABASE=AREML;"
-            "UID=jsn;"
-            "PWD=Test@123"
+            "SERVER=10.220.1.11;"
+            "DATABASE=areml;"
+            "UID=JSN_User;"
+            "PWD=Jsn@1402#"
         )
         cursor = conn.cursor()
 
