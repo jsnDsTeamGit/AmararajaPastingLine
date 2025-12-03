@@ -132,7 +132,7 @@ def AnalyseImage(image, processId):
         # imgSavePath = os.path.join(ResultFolder, f"{imgId}.jpg")
         # cv2.imwrite(imgSavePath, image)
         return "Success"
-    isPlateChecker = PlateChecker(h, w, detectedRois[0].get("box", {}), paddingThresh=3)
+    isPlateChecker = PlateChecker(h, w, detectedRois[0].get("box", {}), paddingThresh=1)
     if not isPlateChecker:
         # os.makedirs("doublePlateImages", exist_ok=True)
         # imPath = os.path.join("doublePlateImages", f"{imgId}.jpg")
