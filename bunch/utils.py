@@ -153,13 +153,20 @@ def GetAnnotatedDetails(predictions):
         bbox = pred.get("box", {})
         x1,y1,x2,y2 = int(bbox.get("x1",0)),int(bbox.get("y1",0)),int(bbox.get("x2",0)),int(bbox.get("y2",0))
         coords = [{"x": x1, "y": y1}, {"x": x2, "y": y2}]
-        annotatedDetails.append({
-            "name": name,
-            "type":1,
-            "coordinates": coords,
-            "startArea":pred.get("startPlate", 0),
-            "endArea":pred.get("endPlate", 0)
-        })
+        if name == "ROI":
+            annotatedDetails.append({
+                "name": name,
+                "type":1,
+                "coordinates": coords,
+            })
+        else:    
+            annotatedDetails.append({
+                "name": name,
+                "type":1,
+                "coordinates": coords,
+                "startArea":pred.get("startPlate", 0),
+                "endArea":pred.get("endPlate", 0)
+            })
     return annotatedDetails
 
 def createSaveJson(filepath):
