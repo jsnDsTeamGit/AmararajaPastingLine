@@ -175,8 +175,8 @@ def startCam():
         stFrameInfo = MV_FRAME_OUT_INFO_EX()
         data_size = 1920 * 1200 * 3  # Max expected size (adjust if needed)
         trigger = 0
+        data_buf = (c_ubyte * data_size)()
         while True:
-            data_buf = (c_ubyte * data_size)()
             ret = cam.MV_CC_GetOneFrameTimeout(data_buf, data_size, stFrameInfo, 1000)
             if ret == 0:
                 if trigger == 1:
@@ -214,7 +214,7 @@ def startCam():
                 #     cv2.imwrite(im2Path, image2)
 
             else:
-                log(f"GetOneFrameTimeout failed: ret={hex(ret)}")
+                # log(f"GetOneFrameTimeout failed: ret={hex(ret)}")
                 time.sleep(0.05)
 
         cam.MV_CC_StopGrabbing()
