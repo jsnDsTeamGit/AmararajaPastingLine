@@ -214,6 +214,7 @@ def startCam():
                 #     cv2.imwrite(im2Path, image2)
 
             else:
+                log(f"GetOneFrameTimeout failed: ret={hex(ret)}")
                 time.sleep(0.05)
 
         cam.MV_CC_StopGrabbing()
