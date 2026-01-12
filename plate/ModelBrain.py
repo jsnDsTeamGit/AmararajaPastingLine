@@ -134,9 +134,9 @@ def AnalyseImage(image, processId):
         return "Success"
     isPlateChecker = PlateChecker(h, w, detectedRois[0].get("box", {}), paddingThresh=1)
     if not isPlateChecker:
-        # os.makedirs("doublePlateImages", exist_ok=True)
-        # imPath = os.path.join("doublePlateImages", f"{imgId}.jpg")
-        # cv2.imwrite(imPath, image)
+        os.makedirs("doublePlateImages", exist_ok=True)
+        imPath = os.path.join("doublePlateImages", f"{imgId}.jpg")
+        cv2.imwrite(imPath, image)
         return "Success"
     filteredDamages = [i for i in predictionDect if i['name'] not in ['Plate Height', 'Lug Position','Frame bend','Light','Paste on Lug','Improper Filling'] and BBoxCheck(detectedRois[0], i)]
     filteredIMFilling = [i for i in predictionDect if i['name'] == 'Improper Filling' and FindImproperFilling(detectedRois[0],detectedLugs[0],i) and BBoxCheck(detectedRois[0],i) ]
