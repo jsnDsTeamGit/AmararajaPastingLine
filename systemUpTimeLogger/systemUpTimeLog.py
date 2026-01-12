@@ -5,7 +5,7 @@ from datetime import datetime
 
 # ---------------- CONFIG ----------------
 LOG_FILE = "C:\GitRepository\AmararajaPastingLine\systemUpTimeLogger\system_uptime.json"
-HEARTBEAT_INTERVAL = 10  # 5 minutes
+HEARTBEAT_INTERVAL = 1 * 60  # 1 minutes
 RETRY_DELAY = 2  # seconds
 MAX_RETRIES = 5
 # ----------------------------------------
