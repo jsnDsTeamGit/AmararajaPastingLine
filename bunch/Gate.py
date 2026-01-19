@@ -33,7 +33,7 @@ def delete_json_and_images(base_folder):
 
 delete_json_and_images("LineData")
 # delete_json_and_images(r"ModelResults")
-time.sleep(15)
+time.sleep(50)
 fetchUrl = "http://10.215.10.125:1001/ProcessRegistryEdgeFetch"
 fetchApiData = {
     "commonDetails": {
