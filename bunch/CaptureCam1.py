@@ -177,7 +177,7 @@ def startCam():
         trigger = 0
 
         last_connection_check = time.time()
-        CONNECTION_CHECK_INTERVAL = 10  # seconds        
+        CONNECTION_CHECK_INTERVAL = 60  # seconds        
         data_buf = (c_ubyte * data_size)()
         while True:
             # Check camera connection every minute
