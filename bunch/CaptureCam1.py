@@ -175,8 +175,17 @@ def startCam():
         stFrameInfo = MV_FRAME_OUT_INFO_EX()
         data_size = 1920 * 1200 * 3  # Max expected size (adjust if needed)
         trigger = 0
+
+        last_connection_check = time.time()
+        CONNECTION_CHECK_INTERVAL = 10  # seconds        
         data_buf = (c_ubyte * data_size)()
         while True:
+            # Check camera connection every minute
+            if time.time() - last_connection_check >= CONNECTION_CHECK_INTERVAL:
+                if not cam.MV_CC_IsDeviceConnected():
+                    log(f"WARNING: Camera disconnected!")
+                last_connection_check = time.time()    
+
             ret = cam.MV_CC_GetOneFrameTimeout(data_buf, data_size, stFrameInfo, 1000)
             if ret == 0:
                 if trigger == 1:
