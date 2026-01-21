@@ -35,7 +35,7 @@ WORKERS = 2                        # IO+inference workers; keep small unless mod
 LOG_FILE = os.path.join(os.path.dirname(sys.executable if getattr(sys, "frozen", False) else __file__),
                         "SinglePlateModel.log")
 
-def PlateChecker(imgH, imgW, bbox, paddingThresh = 10):
+def PlateChecker(imgH, imgW, bbox, paddingThresh = 10): # paddingThresh default is 10%
     x1,y1,x2,y2 = map(int, (bbox.get("x1",0), bbox.get("y1",0), bbox.get("x2",0), bbox.get("y2",0)))
     padBoxX1 = int(max(0, (paddingThresh/100) * imgW))
     padBoxY1 = int(max(0, (paddingThresh/100) * imgH))
@@ -132,11 +132,11 @@ def AnalyseImage(image, processId):
         # imgSavePath = os.path.join(ResultFolder, f"{imgId}.jpg")
         # cv2.imwrite(imgSavePath, image)
         return "Success"
-    isPlateChecker = PlateChecker(h, w, detectedRois[0].get("box", {}), paddingThresh=1)
+    isPlateChecker = PlateChecker(h, w, detectedRois[0].get("box", {}), paddingThresh=1) # padding set to 1%
     if not isPlateChecker:
-        # os.makedirs("doublePlateImages", exist_ok=True)
-        # imPath = os.path.join("doublePlateImages", f"{imgId}.jpg")
-        # cv2.imwrite(imPath, image)
+        os.makedirs("doublePlateImages", exist_ok=True)
+        imPath = os.path.join("doublePlateImages", f"{imgId}.jpg")
+        cv2.imwrite(imPath, image)
         return "Success"
     filteredDamages = [i for i in predictionDect if i['name'] not in ['Plate Height', 'Lug Position','Frame bend','Light','Paste on Lug','Improper Filling'] and BBoxCheck(detectedRois[0], i)]
     filteredIMFilling = [i for i in predictionDect if i['name'] == 'Improper Filling' and FindImproperFilling(detectedRois[0],detectedLugs[0],i) and BBoxCheck(detectedRois[0],i) ]
@@ -270,5 +270,5 @@ def start_pipeline():
     threading.Thread(target=watcher, name="Watcher", daemon=False).start()
 
 
-# # -------------------- Boot --------------------
-# start_pipeline()
+# -------------------- Boot --------------------
+start_pipeline()
