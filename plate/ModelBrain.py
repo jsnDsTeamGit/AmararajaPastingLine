@@ -119,11 +119,17 @@ def AnalyseImage(image, processId):
     imgId = f"{uuid.uuid4()}_{datetime.now().strftime('%Y%m%d%H%M%S%f')}"
     if not predictionStatus:
         log(f"❌ Prediction failed for {processId}: {predictionDect}")
+        os.makedirs("negativeImages", exist_ok=True)
+        imPath = os.path.join("negativeImages", f"{imgId}.jpg")
+        cv2.imwrite(imPath, image)              
         return "Success"
 
     detectedRois = [i for i in predictionDect if i['name'] == 'Plate Height']
     detectedLugs = [i for i in predictionDect if i['name'] == 'Lug Position']
     if not detectedRois or len(detectedRois) > 1:
+        os.makedirs("negativeImages", exist_ok=True)
+        imPath = os.path.join("negativeImages", f"{imgId}.jpg")
+        cv2.imwrite(imPath, image)              
         return "Success"
     if not detectedLugs or len(detectedLugs) > 1:
         # data = {"status": "Fail", "height": h, "width": w, "processId": processId, "predictionData": [detectedRois[0]]}
@@ -131,6 +137,9 @@ def AnalyseImage(image, processId):
         #     json.dump(data, f, indent=4)
         # imgSavePath = os.path.join(ResultFolder, f"{imgId}.jpg")
         # cv2.imwrite(imgSavePath, image)
+        os.makedirs("negativeImages", exist_ok=True)
+        imPath = os.path.join("negativeImages", f"{imgId}.jpg")
+        cv2.imwrite(imPath, image)        
         return "Success"
     isPlateChecker = PlateChecker(h, w, detectedRois[0].get("box", {}), paddingThresh=0.2) # padding set to 0.2%
     if not isPlateChecker:

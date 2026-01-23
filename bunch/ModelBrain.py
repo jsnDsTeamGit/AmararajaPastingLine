@@ -123,6 +123,9 @@ def AnalyseImage(image, processId):
     imgId = f"{uuid.uuid4()}_{datetime.now().strftime('%Y%m%d%H%M%S%f')}"
     if not predictionStatus:
         log(f"❌ Prediction failed for {processId}: {predictionDect}")
+        os.makedirs("negativeImages", exist_ok=True)
+        imPath = os.path.join("negativeImages", f"{imgId}.jpg")
+        cv2.imwrite(imPath, image)              
         return "Success"
 
     for detection in predictionDect:
@@ -131,6 +134,9 @@ def AnalyseImage(image, processId):
 
     detectedRois = [i for i in predictionDect if i['name'] == 'ROI']
     if not detectedRois:
+        os.makedirs("negativeImages", exist_ok=True)
+        imPath = os.path.join("negativeImages", f"{imgId}.jpg")
+        cv2.imwrite(imPath, image)              
         return "Success"
 
     detectedRois = MaxRoi(detectedRois)
