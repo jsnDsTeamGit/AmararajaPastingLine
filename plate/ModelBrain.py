@@ -61,6 +61,16 @@ def modelPredictor(model, image):
     except Exception as e:
         return False, str(e)
 
+def BBoxMidXcheck(outerBox, innerBox):
+    outer = outerBox["box"]
+    inner = innerBox["box"]
+    # Midpoint of inner box
+    midX = (inner["x1"] + inner["x2"]) / 2
+    midY = (inner["y1"] + inner["y2"]) / 2
+    if outer["x1"] <= midX <= outer["x2"] and outer["y1"] <= midY <= outer["y2"]:
+        return True
+    return False
+
 def BBoxCheck(outerBox, innerBox):
     outer = outerBox["box"]
     inner = innerBox["box"]
@@ -125,12 +135,14 @@ def AnalyseImage(image, processId):
         return "Success"
 
     detectedRois = [i for i in predictionDect if i['name'] == 'Plate Height']
-    detectedLugs = [i for i in predictionDect if i['name'] == 'Lug Position']
-    if not detectedRois or len(detectedRois) > 1:
+    if not detectedRois:
         os.makedirs("negativeImages", exist_ok=True)
         imPath = os.path.join("negativeImages", f"{imgId}.jpg")
         cv2.imwrite(imPath, image)              
         return "Success"
+    if len(detectedRois) > 1:
+        detectedRois = MaxRoi(detectedRois)
+    detectedLugs = [i for i in predictionDect if i['name'] == 'Lug Position' and  BBoxMidXcheck(detectedRois[0],i)]
     if not detectedLugs or len(detectedLugs) > 1:
         # data = {"status": "Fail", "height": h, "width": w, "processId": processId, "predictionData": [detectedRois[0]]}
         # with open(os.path.join(ResultFolder, f"{imgId}.json"), "w") as f:
