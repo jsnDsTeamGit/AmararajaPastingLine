@@ -18,6 +18,8 @@ model = YoloDetection("model.pt", "yolo")
 ResultFolder = r"ModelResults"
 os.makedirs(ResultFolder, exist_ok=True)
 
+BASE_NEG_DIR = r"NegImages"
+os.makedirs(BASE_NEG_DIR, exist_ok=True)
 
 SOURCE_DIR  = r"LineData"
 EXTS = {".jpg", ".jpeg", ".png", ".bmp", ".tif", ".tiff"}
@@ -129,16 +131,18 @@ def AnalyseImage(image, processId):
     imgId = f"{uuid.uuid4()}_{datetime.now().strftime('%Y%m%d%H%M%S%f')}"
     if not predictionStatus:
         log(f"❌ Prediction failed for {processId}: {predictionDect}")
-        os.makedirs("negativeImages", exist_ok=True)
-        imPath = os.path.join("negativeImages", f"{imgId}.jpg")
+        negSavePath = os.path.join(BASE_NEG_DIR, "predictionFailed")
+        os.makedirs(negSavePath, exist_ok=True)
+        imPath = os.path.join(negSavePath, f"{imgId}.jpg")
         cv2.imwrite(imPath, image)              
         return "Success"
 
     detectedRois = [i for i in predictionDect if i['name'] == 'Plate Height']
     if not detectedRois:
-        os.makedirs("negativeImages", exist_ok=True)
-        imPath = os.path.join("negativeImages", f"{imgId}.jpg")
-        cv2.imwrite(imPath, image)              
+        negSavePath = os.path.join(BASE_NEG_DIR, "noRoiDetected")
+        os.makedirs(negSavePath, exist_ok=True)
+        imPath = os.path.join(negSavePath, f"{imgId}.jpg")
+        cv2.imwrite(imPath, image)                
         return "Success"
     if len(detectedRois) > 1:
         detectedRois = MaxRoi(detectedRois)
@@ -149,9 +153,10 @@ def AnalyseImage(image, processId):
         #     json.dump(data, f, indent=4)
         # imgSavePath = os.path.join(ResultFolder, f"{imgId}.jpg")
         # cv2.imwrite(imgSavePath, image)
-        os.makedirs("negativeImages", exist_ok=True)
-        imPath = os.path.join("negativeImages", f"{imgId}.jpg")
-        cv2.imwrite(imPath, image)        
+        negSavePath = os.path.join(BASE_NEG_DIR, "noLugDetectedOrMultipleLugs")
+        os.makedirs(negSavePath, exist_ok=True)
+        imPath = os.path.join(negSavePath, f"{imgId}.jpg")
+        cv2.imwrite(imPath, image)      
         return "Success"
     isPlateChecker = PlateChecker(h, w, detectedRois[0].get("box", {}), paddingThresh=0.2) # padding set to 0.2%
     if not isPlateChecker:
