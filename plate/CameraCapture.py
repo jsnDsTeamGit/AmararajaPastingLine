@@ -138,7 +138,7 @@ def startCam1():
         cam.MV_CC_SetEnumValue("AcquisitionMode", 2)
 
         # Set exposure time to 10000 microseconds (10 ms)
-        cam.MV_CC_SetFloatValue("ExposureTime", 2000.0)
+        cam.MV_CC_SetFloatValue("ExposureTime", 900.0)
 
         # Light source preset (if supported, not all Hikrobot cameras have this)
         # e.g., 0=Off, 1=Daylight6500K, 2=CoolWhite, etc.
