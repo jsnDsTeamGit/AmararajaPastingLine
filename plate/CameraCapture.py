@@ -193,8 +193,11 @@ def startCam1():
         data_buf = (c_ubyte * data_size)()
 
         SENSOR_TIMEOUT = 30
-        with open("sensorTrigerPlate.json","r") as f:
-            sensorTrigerData = json.load(f)
+        try:
+            with open("sensorTrigerPlate.json","r") as f:
+                sensorTrigerData = json.load(f)
+        except (json.JSONDecodeError, FileNotFoundError):
+            sensorTrigerData = {}
         if sensorTrigerData:
             idxValue = max(sensorTrigerData.keys())
         else:
@@ -246,8 +249,8 @@ def startCam1():
                         }
                     else:
                         sensorTrigerData[idxValue]["time"] = time.time()
-                bak_path = "sensorTriger.json.bak"
-                main_path = "sensorTriger.json"
+                bak_path = "sensorTrigerPlate.json.bak"
+                main_path = "sensorTrigerPlate.json"
                 try:
                     with open(bak_path, "w") as f:
                         json.dump(sensorTrigerData, f)
@@ -256,7 +259,7 @@ def startCam1():
                         os.remove(main_path)
                     os.rename(bak_path, main_path)
                 except Exception as e:
-                    log(f"ERROR writing sensorTriger.json: {e}. Backup kept at {bak_path}")
+                    log(f"ERROR writing sensorTrigerPlate.json: {e}. Backup kept at {bak_path}")
             else:
                 # log(f"GetOneFrameTimeout failed: ret={hex(ret)}")
                 time.sleep(0.05)
