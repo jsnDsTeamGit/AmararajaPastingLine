@@ -192,7 +192,7 @@ def startCam1():
         CONNECTION_CHECK_INTERVAL = 60  # seconds
         data_buf = (c_ubyte * data_size)()
 
-        SENSOR_TIMEOUT = 30
+        SENSOR_TIMEOUT = 60
         try:
             with open("sensorTrigerPlate.json","r") as f:
                 sensorTrigerData = json.load(f)
