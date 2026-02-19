@@ -236,7 +236,8 @@ def startCam1():
                 if not sensorTrigerData:
                     sensorTrigerData[str(idxValue)] = {
                         "time":time.time(),
-                        "timeDiff": 0
+                        "timeDiff": 0,
+                        "dateTime": datetime.now().isoformat(timespec="seconds")
                     }
                 else:
                     lastSensorTime = sensorTrigerData[str(idxValue)]["time"]
@@ -245,7 +246,8 @@ def startCam1():
                         idxValue += 1   
                         sensorTrigerData[str(idxValue)] = {
                             "time":time.time(),
-                            "timeDiff": timeDiff
+                            "timeDiff": timeDiff,
+                            "dateTime": datetime.now().isoformat(timespec="seconds")
                         }
                     else:
                         sensorTrigerData[str(idxValue)]["time"] = time.time()
@@ -254,10 +256,10 @@ def startCam1():
                 try:
                     # Write to .bak first as a safety net
                     with open(bak_path, "w") as f:
-                        json.dump(sensorTrigerData, f)
+                        json.dump(sensorTrigerData, f, indent=4)
                     # Then update the main .json file
                     with open(main_path, "w") as f:
-                        json.dump(sensorTrigerData, f)
+                        json.dump(sensorTrigerData, f, indent=4)
                 except Exception as e:
                     log(f"ERROR writing sensorTrigerPlate.json: {e}. Backup available at {bak_path}")
             else:
