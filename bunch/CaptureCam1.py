@@ -1,5 +1,7 @@
 import os
 import cv2
+import json
+import sys
 import time
 import uuid
 import traceback
@@ -179,6 +181,18 @@ def startCam():
         last_connection_check = time.time()
         CONNECTION_CHECK_INTERVAL = 60  # seconds        
         data_buf = (c_ubyte * data_size)()
+
+        SENSOR_TIMEOUT = 60
+        try:
+            with open("sensorTrigerBunch.json","r") as f:
+                sensorTrigerData = json.load(f)
+        except (json.JSONDecodeError, FileNotFoundError):
+            sensorTrigerData = {}
+        if sensorTrigerData:
+            idxValue = int(max(sensorTrigerData.keys()))
+        else:
+            idxValue = 1
+
         while True:
             # Check camera connection every minute
             if time.time() - last_connection_check >= CONNECTION_CHECK_INTERVAL:
@@ -221,6 +235,35 @@ def startCam():
                 cv2.imwrite(im1Path, image1)
                 # if image2 is not None:
                 #     cv2.imwrite(im2Path, image2)
+                if not sensorTrigerData:
+                    sensorTrigerData[str(idxValue)] = {
+                        "time":time.time(),
+                        "timeDiff": 0,
+                        "dateTime": datetime.now().isoformat(timespec="seconds")
+                    }
+                else:
+                    lastSensorTime = sensorTrigerData[str(idxValue)]["time"]
+                    timeDiff = time.time() - lastSensorTime
+                    if timeDiff > SENSOR_TIMEOUT:
+                        idxValue += 1   
+                        sensorTrigerData[str(idxValue)] = {
+                            "time":time.time(),
+                            "timeDiff": timeDiff,
+                            "dateTime": datetime.now().isoformat(timespec="seconds")
+                        }
+                    else:
+                        sensorTrigerData[str(idxValue)]["time"] = time.time()
+                bak_path = "sensorTrigerBunch.json.bak"
+                main_path = "sensorTrigerBunch.json"
+                try:
+                    # Write to .bak first as a safety net
+                    with open(bak_path, "w") as f:
+                        json.dump(sensorTrigerData, f, indent=4)
+                    # Then update the main .json file
+                    with open(main_path, "w") as f:
+                        json.dump(sensorTrigerData, f, indent=4)
+                except Exception as e:
+                    log(f"ERROR writing sensorTrigerBunch.json: {e}. Backup available at {bak_path}")                
 
             else:
                 # log(f"GetOneFrameTimeout failed: ret={hex(ret)}")
