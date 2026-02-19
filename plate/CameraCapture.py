@@ -252,14 +252,14 @@ def startCam1():
                 bak_path = "sensorTrigerPlate.json.bak"
                 main_path = "sensorTrigerPlate.json"
                 try:
+                    # Write to .bak first as a safety net
                     with open(bak_path, "w") as f:
                         json.dump(sensorTrigerData, f)
-                    # Write succeeded – replace the main file with the backup
-                    if os.path.exists(main_path):
-                        os.remove(main_path)
-                    os.rename(bak_path, main_path)
+                    # Then update the main .json file
+                    with open(main_path, "w") as f:
+                        json.dump(sensorTrigerData, f)
                 except Exception as e:
-                    log(f"ERROR writing sensorTrigerPlate.json: {e}. Backup kept at {bak_path}")
+                    log(f"ERROR writing sensorTrigerPlate.json: {e}. Backup available at {bak_path}")
             else:
                 # log(f"GetOneFrameTimeout failed: ret={hex(ret)}")
                 time.sleep(0.05)
