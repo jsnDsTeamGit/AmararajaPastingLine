@@ -199,7 +199,7 @@ def startCam1():
         except (json.JSONDecodeError, FileNotFoundError):
             sensorTrigerData = {}
         if sensorTrigerData:
-            idxValue = max(sensorTrigerData.keys())
+            idxValue = int(max(sensorTrigerData.keys()))
         else:
             idxValue = 1
         while True:
