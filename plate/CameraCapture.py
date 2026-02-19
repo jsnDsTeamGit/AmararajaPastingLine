@@ -234,21 +234,21 @@ def startCam1():
                 imPath = f"{saveFolder}/{uuid.uuid4()}.jpg"
                 cv2.imwrite(imPath, image)
                 if not sensorTrigerData:
-                    sensorTrigerData[idxValue] = {
+                    sensorTrigerData[str(idxValue)] = {
                         "time":time.time(),
                         "timeDiff": 0
                     }
                 else:
-                    lastSensorTime = sensorTrigerData[idxValue]["time"]
+                    lastSensorTime = sensorTrigerData[str(idxValue)]["time"]
                     timeDiff = time.time() - lastSensorTime
                     if timeDiff > SENSOR_TIMEOUT:
                         idxValue += 1   
-                        sensorTrigerData[idxValue] = {
+                        sensorTrigerData[str(idxValue)] = {
                             "time":time.time(),
                             "timeDiff": timeDiff
                         }
                     else:
-                        sensorTrigerData[idxValue]["time"] = time.time()
+                        sensorTrigerData[str(idxValue)]["time"] = time.time()
                 bak_path = "sensorTrigerPlate.json.bak"
                 main_path = "sensorTrigerPlate.json"
                 try:
