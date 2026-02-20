@@ -235,24 +235,41 @@ def startCam():
                 cv2.imwrite(im1Path, image1)
                 # if image2 is not None:
                 #     cv2.imwrite(im2Path, image2)
+                now = time.time()
+                now_dt = datetime.now().isoformat(timespec="seconds")                
                 if not sensorTrigerData:
                     sensorTrigerData[str(idxValue)] = {
-                        "time":time.time(),
-                        "timeDiff": 0,
-                        "dateTime": datetime.now().isoformat(timespec="seconds")
+                        "start_time": now,
+                        "start_dateTime": now_dt,
+                        "end_time": now,
+                        "end_dateTime": now_dt,
+                        "duration_seconds": 0,
+                        "trigger_count": 1,
+                        "timeDiff": 0
                     }
                 else:
-                    lastSensorTime = sensorTrigerData[str(idxValue)]["time"]
-                    timeDiff = time.time() - lastSensorTime
+                    last_entry = sensorTrigerData[str(idxValue)]
+                    timeDiff = now - last_entry["end_time"]  # gap since last frame
+
                     if timeDiff > SENSOR_TIMEOUT:
-                        idxValue += 1   
+                        # ── New session ──
+                        idxValue += 1
                         sensorTrigerData[str(idxValue)] = {
-                            "time":time.time(),
-                            "timeDiff": timeDiff,
-                            "dateTime": datetime.now().isoformat(timespec="seconds")
+                            "start_time": now,
+                            "start_dateTime": now_dt,
+                            "end_time": now,
+                            "end_dateTime": now_dt,
+                            "duration_seconds": 0,
+                            "trigger_count": 1,
+                            "timeDiff": round(timeDiff, 2)   # gap from previous session's last frame
                         }
                     else:
-                        sensorTrigerData[str(idxValue)]["time"] = time.time()
+                        # ── Same session — only update end_time and duration ──
+                        last_entry["end_time"] = now
+                        last_entry["end_dateTime"] = now_dt
+                        last_entry["duration_seconds"] = round(now - last_entry["start_time"], 2)
+                        last_entry["trigger_count"] += 1
+                        
                 bak_path = "sensorTrigerBunch.json.bak"
                 main_path = "sensorTrigerBunch.json"
                 try:
