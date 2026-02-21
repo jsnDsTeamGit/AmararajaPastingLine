@@ -40,12 +40,16 @@ LOG_FILE = os.path.join(os.path.dirname(sys.executable if getattr(sys, "frozen",
 def PlateChecker(imgH, imgW, bbox, paddingThresh = 10): # paddingThresh default is 10%
     x1,y1,x2,y2 = map(int, (bbox.get("x1",0), bbox.get("y1",0), bbox.get("x2",0), bbox.get("y2",0)))
     padBoxX1 = int(max(0, (paddingThresh/100) * imgW))
-    padBoxY1 = int(max(0, (paddingThresh/100) * imgH))
+    # padBoxY1 = int(max(0, (paddingThresh/100) * imgH))
     padBoxX2 = int(min(imgW, (1-(paddingThresh/100)) * imgW))
-    padBoxY2 = int(min(imgH, (1-(paddingThresh/100)) * imgH))
+    # padBoxY2 = int(min(imgH, (1-(paddingThresh/100)) * imgH))
     # cv2.rectangle(img, (padBoxX1, padBoxY1), (padBoxX2, padBoxY2), (0,0,255), 2)
     # cv2.imwrite("plateCheckDebug_0_2.jpg", img)
-    if x1 >= padBoxX1 and y1 >= padBoxY1 and x2 <= padBoxX2 and y2 <= padBoxY2:
+    # cv2.line(img, (padBoxX1, 0), (padBoxX1, imgH), (0, 0, 255), 2)
+    # cv2.line(img, (padBoxX2, 0), (padBoxX2, imgH), (0, 0, 255), 2)
+    # cv2.imwrite("plateCheckDebug_0_2_lines.jpg", img)
+    # if x1 >= padBoxX1 and y1 >= padBoxY1 and x2 <= padBoxX2 and y2 <= padBoxY2:
+    if x1 >= padBoxX1 and x2 <= padBoxX2:
         return True
     return False
 
