@@ -37,21 +37,30 @@ WORKERS = 2                        # IO+inference workers; keep small unless mod
 LOG_FILE = os.path.join(os.path.dirname(sys.executable if getattr(sys, "frozen", False) else __file__),
                         "SinglePlateModel.log")
 
-def PlateChecker(imgH, imgW, bbox, paddingThresh = 10): # paddingThresh default is 10%
-    x1,y1,x2,y2 = map(int, (bbox.get("x1",0), bbox.get("y1",0), bbox.get("x2",0), bbox.get("y2",0)))
+def PlateChecker(imgW, bbox, plateDimDetails, paddingThresh = 10):
+    '''
+    Checks if the bbox touches either if the edge in the image. 
+    If yes, then checks if the bbox width is within the threshold.
+    '''
+    x1,y1,x2,y2 = map(int, (bbox.get("x1",0),bbox.get("y1",0),bbox.get("x2",0),bbox.get("y2",0)))
+    px_per_mm = plateDimDetails.get("px_per_mm", 6.436)
+    bigPlateW = plateDimDetails.get("bigPlateW_mm", 144.48)
+    smallPlateW = plateDimDetails.get("smallPlateW_mm", 98.55)
+    bigPlateThresh_mm = plateDimDetails.get("bigPlateThresh_mm", 5.0)
+    smallPlateThresh_mm = plateDimDetails.get("smallPlateThresh_mm", 5.0)
     padBoxX1 = int(max(0, (paddingThresh/100) * imgW))
-    # padBoxY1 = int(max(0, (paddingThresh/100) * imgH))
     padBoxX2 = int(min(imgW, (1-(paddingThresh/100)) * imgW))
-    # padBoxY2 = int(min(imgH, (1-(paddingThresh/100)) * imgH))
-    # cv2.rectangle(img, (padBoxX1, padBoxY1), (padBoxX2, padBoxY2), (0,0,255), 2)
-    # cv2.imwrite("plateCheckDebug_0_2.jpg", img)
-    # cv2.line(img, (padBoxX1, 0), (padBoxX1, imgH), (0, 0, 255), 2)
-    # cv2.line(img, (padBoxX2, 0), (padBoxX2, imgH), (0, 0, 255), 2)
-    # cv2.imwrite("plateCheckDebug_0_2_lines.jpg", img)
-    # if x1 >= padBoxX1 and y1 >= padBoxY1 and x2 <= padBoxX2 and y2 <= padBoxY2:
-    if x1 >= padBoxX1 and x2 <= padBoxX2:
-        return True
-    return False
+    if not (x1 >= padBoxX1 and x2 <= padBoxX2): # BBox is not within padding
+        bbox_width_mm = abs(x2 - x1) / px_per_mm
+        big_plate_diff = abs(bbox_width_mm - bigPlateW)
+        small_plate_diff = abs(bbox_width_mm - smallPlateW)
+        if big_plate_diff <= bigPlateThresh_mm:
+            return True # Correct big plate
+        if small_plate_diff <= smallPlateThresh_mm:
+            return True # Correct small plate
+        return False # Double plate detected
+    return True # BBox is within padding
+
 
 def log(msg: str):
     try:
@@ -162,7 +171,16 @@ def AnalyseImage(image, processId):
         imPath = os.path.join(negSavePath, f"{imgId}.jpg")
         cv2.imwrite(imPath, image)      
         return "Success"
-    isPlateChecker = PlateChecker(h, w, detectedRois[0].get("box", {}), paddingThresh=0.2) # padding set to 0.2%
+    # isPlateChecker = PlateChecker(h, w, detectedRois[0].get("box", {}), paddingThresh=0.2) # padding set to 0.2%
+    # PLATE DIMENSIONS DECLARATIONS
+    plateDimensionsDetails = {
+        "px_per_mm": 6.436,
+        "bigPlateThresh_mm": 5.0,
+        "smallPlateThresh_mm": 18.0,
+        "bigPlateW_mm": 144.48,
+        "smallPlateW_mm": 98.55
+    }
+    isPlateChecker = PlateChecker(w,detectedRois[0].get("box", {}), plateDimensionsDetails, paddingThresh=0.2)
     if not isPlateChecker:
         os.makedirs("doublePlateImages", exist_ok=True)
         imPath = os.path.join("doublePlateImages", f"{imgId}.jpg")
@@ -301,4 +319,4 @@ def start_pipeline():
 
 
 # # -------------------- Boot --------------------
-# start_pipeline()
+start_pipeline()
