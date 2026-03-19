@@ -1,0 +1,137 @@
+{
+    "1": {
+        "start_time": 1773480033.548014,
+        "start_dateTime": "2026-03-14T14:50:33",
+        "end_time": 1773523933.0176058,
+        "end_dateTime": "2026-03-15T03:02:13",
+        "duration_seconds": 43899.47,
+        "trigger_count": 151408,
+        "timeDiff": 0
+    },
+    "2": {
+        "start_time": 1773524028.242283,
+        "start_dateTime": "2026-03-15T03:03:48",
+        "end_time": 1773679361.718946,
+        "end_dateTime": "2026-03-16T22:12:41",
+        "duration_seconds": 155333.48,
+        "trigger_count": 440374,
+        "timeDiff": 95.22
+    },
+    "3": {
+        "start_time": 1773679437.2646625,
+        "start_dateTime": "2026-03-16T22:13:57",
+        "end_time": 1773683942.9812086,
+        "end_dateTime": "2026-03-16T23:29:02",
+        "duration_seconds": 4505.72,
+        "trigger_count": 17913,
+        "timeDiff": 75.55
+    },
+    "4": {
+        "start_time": 1773684014.589966,
+        "start_dateTime": "2026-03-16T23:30:14",
+        "end_time": 1773687322.5341144,
+        "end_dateTime": "2026-03-17T00:25:22",
+        "duration_seconds": 3307.94,
+        "trigger_count": 14290,
+        "timeDiff": 71.61
+    },
+    "5": {
+        "start_time": 1773687410.6920028,
+        "start_dateTime": "2026-03-17T00:26:50",
+        "end_time": 1773821440.4711223,
+        "end_dateTime": "2026-03-18T13:40:40",
+        "duration_seconds": 134029.78,
+        "trigger_count": 481738,
+        "timeDiff": 88.16
+    },
+    "6": {
+        "start_time": 1773841850.5537438,
+        "start_dateTime": "2026-03-18T19:20:50",
+        "end_time": 1773878855.6750922,
+        "end_dateTime": "2026-03-19T05:37:35",
+        "duration_seconds": 37005.12,
+        "trigger_count": 137659,
+        "timeDiff": 20410.08
+    },
+    "7": {
+        "start_time": 1773878995.6142924,
+        "start_dateTime": "2026-03-19T05:39:55",
+        "end_time": 1773878995.6142924,
+        "end_dateTime": "2026-03-19T05:39:55",
+        "duration_seconds": 0,
+        "trigger_count": 1,
+        "timeDiff": 139.94
+    },
+    "8": {
+        "start_time": 1773879117.2535253,
+        "start_dateTime": "2026-03-19T05:41:57",
+        "end_time": 1773879288.0687373,
+        "end_dateTime": "2026-03-19T05:44:48",
+        "duration_seconds": 170.82,
+        "trigger_count": 8,
+        "timeDiff": 121.64
+    },
+    "9": {
+        "start_time": 1773879808.569721,
+        "start_dateTime": "2026-03-19T05:53:28",
+        "end_time": 1773879857.500848,
+        "end_dateTime": "2026-03-19T05:54:17",
+        "duration_seconds": 48.93,
+        "trigger_count": 3,
+        "timeDiff": 520.5
+    },
+    "10": {
+        "start_time": 1773880398.518812,
+        "start_dateTime": "2026-03-19T06:03:18",
+        "end_time": 1773880398.518812,
+        "end_dateTime": "2026-03-19T06:03:18",
+        "duration_seconds": 0,
+        "trigger_count": 1,
+        "timeDiff": 541.02
+    },
+    "11": {
+        "start_time": 1773880483.8981586,
+        "start_dateTime": "2026-03-19T06:04:43",
+        "end_time": 1773880540.8061116,
+        "end_dateTime": "2026-03-19T06:05:40",
+        "duration_seconds": 56.91,
+        "trigger_count": 3,
+        "timeDiff": 85.38
+    },
+    "12": {
+        "start_time": 1773880902.9968374,
+        "start_dateTime": "2026-03-19T06:11:42",
+        "end_time": 1773880902.9968374,
+        "end_dateTime": "2026-03-19T06:11:42",
+        "duration_seconds": 0,
+        "trigger_count": 1,
+        "timeDiff": 362.19
+    },
+    "13": {
+        "start_time": 1773881024.4745321,
+        "start_dateTime": "2026-03-19T06:13:44",
+        "end_time": 1773881081.337726,
+        "end_dateTime": "2026-03-19T06:14:41",
+        "duration_seconds": 56.86,
+        "trigger_count": 3,
+        "timeDiff": 121.48
+    },
+    "14": {
+        "start_time": 1773881621.71042,
+        "start_dateTime": "2026-03-19T06:23:41",
+        "end_time": 1773881736.6171525,
+        "end_dateTime": "2026-03-19T06:25:36",
+        "duration_seconds": 114.91,
+        "trigger_count": 5,
+        "timeDiff": 540.37
+    },
+    "15": {
+        "start_time": 1773881873.5367036,
+        "start_dateTime": "2026-03-19T06:27:53",
+        "end_time": 1773881873.5367036,
+        "end_dateTime": "2026-03-19T06:27:53",
+        "duration_seconds": 0,
+        "trigger_count": 1,
+        "timeDiff": 136.92
+    }
+}

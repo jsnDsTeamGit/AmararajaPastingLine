@@ -32,24 +32,14 @@
             },
             "defaultLabels": [
                 {
-                    "uniqueId": "fe7c48ed-9146-4424-b715-11a0138778d6",
-                    "labelName": "Plate Edge Damage",
-                    "labelIdentifier": "Plate edge damage"
-                },
-                {
-                    "uniqueId": "fe7c48ed-9146-4424-b715-11a0138778d7",
-                    "labelName": "ROI",
-                    "labelIdentifier": "ROI"
-                },
-                {
                     "uniqueId": "46d80292-4991-4105-aee2-41fe163d3593",
                     "labelName": "Wire Bend",
                     "labelIdentifier": "Wire Bend"
                 },
                 {
-                    "uniqueId": "aa878fc4-4de6-46dd-b3b3-b5f27d5c8551",
-                    "labelName": "Excess Backing Paper",
-                    "labelIdentifier": "Excess backing paper"
+                    "uniqueId": "fe7c48ed-9146-4424-b715-11a0138778d6",
+                    "labelName": "Plate Edge Damage",
+                    "labelIdentifier": "Plate edge damage"
                 },
                 {
                     "uniqueId": "a160f3c2-a8c6-4301-b9dc-0ec2d99253bf",
@@ -57,9 +47,19 @@
                     "labelIdentifier": "Flashes on Lug"
                 },
                 {
+                    "uniqueId": "fe7c48ed-9146-4424-b715-11a0138778d7",
+                    "labelName": "ROI",
+                    "labelIdentifier": "ROI"
+                },
+                {
                     "uniqueId": "df965285-aa3e-4c20-9c37-db1730b50119",
                     "labelName": "Plate Bend",
                     "labelIdentifier": "Plate bend"
+                },
+                {
+                    "uniqueId": "aa878fc4-4de6-46dd-b3b3-b5f27d5c8551",
+                    "labelName": "Excess Backing Paper",
+                    "labelIdentifier": "Excess backing paper"
                 }
             ],
             "statusList": [

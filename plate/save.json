@@ -43,29 +43,9 @@
       },
       "defaultLabels": [
         {
-          "uniqueId": "e9bef77f-088b-4451-b375-2e30ba942741",
-          "labelName": "Lug Position",
-          "labelIdentifier": "Lug Position"
-        },
-        {
           "uniqueId": "5fc746b4-ae5a-4da8-895a-9e975985388e",
           "labelName": "Plate Height",
           "labelIdentifier": "Plate Height"
-        },
-        {
-          "uniqueId": "1fe6706d-9a24-4d83-bba7-0d693874827c",
-          "labelName": "Improper Filling",
-          "labelIdentifier": "Improper Filling"
-        },
-        {
-          "uniqueId": "new-deffe7c48ed-9146-4424-b715-11a0138778d6",
-          "labelName": "Frame Bend",
-          "labelIdentifier": "Frame bend"
-        },
-        {
-          "uniqueId": "39f40e10-5808-4bc2-b024-79d5557add22",
-          "labelName": "Paste on Lug",
-          "labelIdentifier": "Paste on Lug"
         },
         {
           "uniqueId": "cd3e1fcd-9e57-4157-ba26-c43556d7f09d",
@@ -73,9 +53,29 @@
           "labelIdentifier": "Excess backing paper"
         },
         {
+          "uniqueId": "e9bef77f-088b-4451-b375-2e30ba942741",
+          "labelName": "Lug Position",
+          "labelIdentifier": "Lug Position"
+        },
+        {
+          "uniqueId": "39f40e10-5808-4bc2-b024-79d5557add22",
+          "labelName": "Paste on Lug",
+          "labelIdentifier": "Paste on Lug"
+        },
+        {
+          "uniqueId": "1fe6706d-9a24-4d83-bba7-0d693874827c",
+          "labelName": "Improper Filling",
+          "labelIdentifier": "Improper Filling"
+        },
+        {
           "uniqueId": "6773fce0-6b46-424d-afec-c2ee7f7b5859",
           "labelName": "Plate Damage",
           "labelIdentifier": "Plate damage"
+        },
+        {
+          "uniqueId": "new-deffe7c48ed-9146-4424-b715-11a0138778d6",
+          "labelName": "Frame Bend",
+          "labelIdentifier": "Frame bend"
         }
       ],
       "statusList": [
@@ -100,18 +100,18 @@
       ]
     },
     "resultDetails": {
-      "processId": "543915db-3fab-45da-a49b-abbacb45df7b_20251119181131453084",
-      "id": "935298ae-c6f5-4b14-928f-a8e775848528_20251119181131610401",
-      "url": "https://fofpocadls.blob.core.windows.net/automodeltrainings/ApiData/935298ae-c6f5-4b14-928f-a8e775848528_20251119181131610401.jpg",
+      "processId": "c4f8b657-b2f3-40c8-86a1-2fa452bb144d_20260319042305646220",
+      "id": "d9e01fdc-1a4f-4371-a0b1-ed4027a4f465_20260319042305931621",
+      "url": "https://fofpocadls.blob.core.windows.net/automodeltrainings/ApiData/d9e01fdc-1a4f-4371-a0b1-ed4027a4f465_20260319042305931621.jpg",
       "resultId": 1,
       "height": 1280,
       "width": 1024,
-      "dateTime": "2025-11-19T12:41:31.000Z",
-      "batchId": "7b63050a-5696-403b-90ff-1a6d31ea8faa_20251119181242728358",
+      "dateTime": "2026-03-18T22:53:05.000Z",
+      "batchId": "b7ea6684-fef4-4fea-94fd-e6e6cfc92e13_20260319042403017356",
       "batchCount": 500,
-      "batchPassCount": 498,
-      "batchFailCount": 2,
-      "plateType": "Unknown",
+      "batchPassCount": 500,
+      "batchFailCount": 0,
+      "plateType": "GN1 -VE",
       "labelValue": {
         "annotatedDetails": [
           {
@@ -119,12 +119,12 @@
             "type": 1,
             "coordinates": [
               {
-                "x": 37,
-                "y": 228
+                "x": 288,
+                "y": 251
               },
               {
-                "x": 975,
-                "y": 1196
+                "x": 944,
+                "y": 1184
               }
             ]
           },
@@ -133,12 +133,12 @@
             "type": 1,
             "coordinates": [
               {
-                "x": 539,
-                "y": 222
+                "x": 702,
+                "y": 250
               },
               {
-                "x": 671,
-                "y": 321
+                "x": 791,
+                "y": 343
               }
             ]
           }

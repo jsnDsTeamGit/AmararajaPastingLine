@@ -32,9 +32,9 @@
             },
             "defaultLabels": [
                 {
-                    "uniqueId": "e9bef77f-088b-4451-b375-2e30ba942741",
-                    "labelName": "Lug Position",
-                    "labelIdentifier": "Lug Position"
+                    "uniqueId": "new-deffe7c48ed-9146-4424-b715-11a0138778d6",
+                    "labelName": "Frame Bend",
+                    "labelIdentifier": "Frame bend"
                 },
                 {
                     "uniqueId": "5fc746b4-ae5a-4da8-895a-9e975985388e",
@@ -42,14 +42,14 @@
                     "labelIdentifier": "Plate Height"
                 },
                 {
-                    "uniqueId": "1fe6706d-9a24-4d83-bba7-0d693874827c",
-                    "labelName": "Improper Filling",
-                    "labelIdentifier": "Improper Filling"
+                    "uniqueId": "cd3e1fcd-9e57-4157-ba26-c43556d7f09d",
+                    "labelName": "Excess Backing Paper",
+                    "labelIdentifier": "Excess backing paper"
                 },
                 {
-                    "uniqueId": "new-deffe7c48ed-9146-4424-b715-11a0138778d6",
-                    "labelName": "Frame Bend",
-                    "labelIdentifier": "Frame bend"
+                    "uniqueId": "e9bef77f-088b-4451-b375-2e30ba942741",
+                    "labelName": "Lug Position",
+                    "labelIdentifier": "Lug Position"
                 },
                 {
                     "uniqueId": "39f40e10-5808-4bc2-b024-79d5557add22",
@@ -57,9 +57,9 @@
                     "labelIdentifier": "Paste on Lug"
                 },
                 {
-                    "uniqueId": "cd3e1fcd-9e57-4157-ba26-c43556d7f09d",
-                    "labelName": "Excess Backing Paper",
-                    "labelIdentifier": "Excess backing paper"
+                    "uniqueId": "1fe6706d-9a24-4d83-bba7-0d693874827c",
+                    "labelName": "Improper Filling",
+                    "labelIdentifier": "Improper Filling"
                 },
                 {
                     "uniqueId": "6773fce0-6b46-424d-afec-c2ee7f7b5859",
