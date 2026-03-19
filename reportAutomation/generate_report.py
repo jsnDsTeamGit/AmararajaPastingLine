@@ -515,7 +515,7 @@ def generate_report(from_date=None, to_date=None, csv_path=None):
     yellow_fill = PatternFill(start_color='FFEB9C', end_color='FFEB9C', fill_type='solid')
 
     # Title
-    ws.merge_cells('A1:N1')
+    ws.merge_cells('A1:O1')
     title_cell = ws['A1']
     title_cell.value = "Production vs Captured Count - Shift Report"
     title_cell.font = Font(name='Calibri', bold=True, size=14, color='2F5496')
@@ -523,7 +523,7 @@ def generate_report(from_date=None, to_date=None, csv_path=None):
     ws.row_dimensions[1].height = 30
 
     # Date range subtitle
-    ws.merge_cells('A2:N2')
+    ws.merge_cells('A2:O2')
     data_source = f"CSV: {csv_path}" if csv_path else "SQL Server (live)"
     ws['A2'].value = (
         f"Range: {from_dt.strftime('%d-%m-%Y %H:%M')} to "
@@ -536,20 +536,21 @@ def generate_report(from_date=None, to_date=None, csv_path=None):
 
     # Headers (row 4)
     headers = [
-        "Date",
-        "Shift",
-        "Shift Time (IST)",
-        "DB Bunches",
-        "DB Plates\n(Bunches x Qty)",
-        "Captured Plates\n(SinglePlate Log)",
-        "Captured Plates\n(MultiPlate Log)",
-        "Total Captured\nPlates",
-        "Sensor Triggers\n(Plate)",
-        "Sensor Triggers\n(Bunch)",
-        "Double Plate\nImages",
-        "Negative\nImages",
-        "Difference\n(DB - Captured)",
-        "Status"
+        "Date",                              # A (col 1)
+        "Shift",                             # B (col 2)
+        "Shift Time (IST)",                  # C (col 3)
+        "DB Bunches",                        # D (col 4)
+        "DB Plates\n(Bunches x Qty)",        # E (col 5)
+        "Captured Plates\n(SinglePlate Log)", # F (col 6)
+        "Captured Plates\n(MultiPlate Log)",  # G (col 7)
+        "Sensor Triggers\n(Plate)",          # H (col 8)
+        "Sensor Triggers\n(Bunch)",          # I (col 9)
+        "Double Plate\nImages",              # J (col 10)
+        "Negative\nImages",                  # K (col 11)
+        "Plate Diff\n(DB - Captured)",       # L (col 12)
+        "Plate\nStatus",                     # M (col 13)
+        "Bunch Diff\n(DB - Captured)",       # N (col 14)
+        "Bunch\nStatus",                     # O (col 15)
     ]
 
     for col, header in enumerate(headers, 1):
@@ -574,39 +575,45 @@ def generate_report(from_date=None, to_date=None, csv_path=None):
         db_p = db_plates.get(key, 0)
         cap_s = captured_single.get(key, 0)
         cap_m = captured_multi.get(key, 0)
-        cap_total = cap_s + cap_m
         sensor_p = sensor_plate_by_shift.get(key, 0)
         sensor_b = sensor_bunch_by_shift.get(key, 0)
         dbl_img = dbl_counts.get(key, 0)
         neg_img = neg_counts.get(key, 0)
 
-        diff = db_p - cap_total
-
-        if diff > 0:
-            status = "DB MORE"
-        elif diff < 0:
-            status = "CAPTURED MORE"
+        # Plate difference: DB Plates vs SinglePlate captured
+        plate_diff = db_p - cap_s
+        if plate_diff > 0:
+            plate_status = "DB MORE"
+        elif plate_diff < 0:
+            plate_status = "CAPTURED MORE"
         else:
-            if db_p == 0 and cap_total == 0:
-                status = "NO DATA"
-            else:
-                status = "MATCH"
+            plate_status = "NO DATA" if (db_p == 0 and cap_s == 0) else "MATCH"
+
+        # Bunch difference: DB Bunches vs MultiPlate captured
+        bunch_diff = db_b - cap_m
+        if bunch_diff > 0:
+            bunch_status = "DB MORE"
+        elif bunch_diff < 0:
+            bunch_status = "CAPTURED MORE"
+        else:
+            bunch_status = "NO DATA" if (db_b == 0 and cap_m == 0) else "MATCH"
 
         values = [
-            shift_date.strftime("%d-%m-%Y"),
-            shift,
-            shift_times.get(shift, ""),
-            db_b,
-            db_p,
-            cap_s,
-            cap_m,
-            cap_total,
-            sensor_p,
-            sensor_b,
-            dbl_img,
-            neg_img,
-            diff,
-            status,
+            shift_date.strftime("%d-%m-%Y"),  # col 1
+            shift,                             # col 2
+            shift_times.get(shift, ""),        # col 3
+            db_b,                              # col 4
+            db_p,                              # col 5
+            cap_s,                             # col 6
+            cap_m,                             # col 7
+            sensor_p,                          # col 8
+            sensor_b,                          # col 9
+            dbl_img,                           # col 10
+            neg_img,                           # col 11
+            plate_diff,                        # col 12
+            plate_status,                      # col 13
+            bunch_diff,                        # col 14
+            bunch_status,                      # col 15
         ]
 
         for col, val in enumerate(values, 1):
@@ -614,22 +621,43 @@ def generate_report(from_date=None, to_date=None, csv_path=None):
             cell.alignment = data_align
             cell.border = thin_border
 
-            if col == 14:
-                if status == "DB MORE":
+            # Plate Diff coloring (col 12)
+            if col == 12:
+                if plate_diff > 0:
+                    cell.fill = yellow_fill
+                elif plate_diff < 0:
+                    cell.fill = red_fill
+
+            # Plate Status coloring (col 13)
+            if col == 13:
+                if plate_status == "DB MORE":
                     cell.fill = yellow_fill
                     cell.font = Font(bold=True, color='9C6500')
-                elif status == "CAPTURED MORE":
+                elif plate_status == "CAPTURED MORE":
                     cell.fill = red_fill
                     cell.font = Font(bold=True, color='9C0006')
-                elif status == "MATCH":
+                elif plate_status == "MATCH":
                     cell.fill = green_fill
                     cell.font = Font(bold=True, color='006100')
 
-            if col == 13:
-                if diff > 0:
+            # Bunch Diff coloring (col 14)
+            if col == 14:
+                if bunch_diff > 0:
                     cell.fill = yellow_fill
-                elif diff < 0:
+                elif bunch_diff < 0:
                     cell.fill = red_fill
+
+            # Bunch Status coloring (col 15)
+            if col == 15:
+                if bunch_status == "DB MORE":
+                    cell.fill = yellow_fill
+                    cell.font = Font(bold=True, color='9C6500')
+                elif bunch_status == "CAPTURED MORE":
+                    cell.fill = red_fill
+                    cell.font = Font(bold=True, color='9C0006')
+                elif bunch_status == "MATCH":
+                    cell.fill = green_fill
+                    cell.font = Font(bold=True, color='006100')
 
         row += 1
 
@@ -638,23 +666,19 @@ def generate_report(from_date=None, to_date=None, csv_path=None):
     ws.cell(row=row, column=1, value="TOTALS").font = Font(bold=True)
     ws.cell(row=row, column=1).border = thin_border
 
-    for col in range(2, 13):
+    # Sum numeric columns (4-12, 14) — skip status text columns (13, 15)
+    sum_cols = [4, 5, 6, 7, 8, 9, 10, 11, 12, 14]
+    for col in range(2, 16):
         cell = ws.cell(row=row, column=col)
-        if col >= 4:
+        if col in sum_cols:
             col_letter = get_column_letter(col)
             cell.value = f"=SUM({col_letter}5:{col_letter}{row - 2})"
             cell.font = Font(bold=True)
         cell.border = thin_border
         cell.alignment = data_align
 
-    diff_cell = ws.cell(row=row, column=13)
-    diff_cell.value = f"=SUM(M5:M{row - 2})"
-    diff_cell.font = Font(bold=True)
-    diff_cell.border = thin_border
-    diff_cell.alignment = data_align
-
-    # Column widths
-    col_widths = [14, 8, 16, 12, 16, 18, 18, 16, 16, 16, 14, 12, 16, 16]
+    # Column widths (15 columns)
+    col_widths = [14, 8, 16, 12, 16, 18, 18, 16, 16, 14, 12, 16, 14, 16, 14]
     for i, w in enumerate(col_widths, 1):
         ws.column_dimensions[get_column_letter(i)].width = w
 
