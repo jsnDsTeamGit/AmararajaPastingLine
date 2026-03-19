@@ -151,6 +151,34 @@ def get_shift_and_date(ist_dt):
 
 # -- Parsers ----------------------------------------------------------------
 
+def parse_log_all_timestamps(filepath, from_dt, to_dt):
+    """
+    Read ALL timestamped lines from a log file (any line with [YYYY-MM-DD HH:MM:SS]).
+    Timestamps are in UTC -> converted to IST, then filtered by range.
+    Returns list of IST datetimes for every logged activity in range.
+    Used for gap analysis to detect any activity, not just batch lines.
+    """
+    results = []
+    if not os.path.exists(filepath):
+        return results
+
+    ts_pattern = re.compile(r'\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\]')
+
+    with open(filepath, 'r', encoding='utf-8', errors='ignore') as f:
+        for line in f:
+            m = ts_pattern.search(line)
+            if m:
+                try:
+                    utc_dt = datetime.strptime(m.group(1), "%Y-%m-%d %H:%M:%S")
+                    ist_dt = utc_to_ist(utc_dt)
+                    if is_in_range(ist_dt, from_dt, to_dt):
+                        results.append(ist_dt)
+                except ValueError:
+                    continue
+
+    return results
+
+
 def parse_model_log(filepath, from_dt, to_dt):
     """
     Parse SinglePlateModel.log or MultiplatePlateModel.log.
@@ -718,6 +746,149 @@ def generate_report(from_date=None, to_date=None, csv_path=None):
 
     for col in range(1, 5):
         ws2.column_dimensions[get_column_letter(col)].width = 28
+
+    # -- Data Gap Analysis Sheet ------------------------------------------------
+    ws3 = wb.create_sheet("Data Gap Analysis")
+
+    ws3.merge_cells('A1:G1')
+    ws3['A1'].value = "Data Gap Analysis (10-Minute Intervals)"
+    ws3['A1'].font = Font(bold=True, size=14, color='2F5496')
+    ws3['A1'].alignment = Alignment(horizontal='center')
+    ws3.row_dimensions[1].height = 30
+
+    ws3.merge_cells('A2:G2')
+    ws3['A2'].value = (
+        f"Range: {from_dt.strftime('%d-%m-%Y %H:%M')} to "
+        f"{to_dt.strftime('%d-%m-%Y %H:%M')} IST  |  "
+        f"Shows only time slots where data exists in one source but not the other"
+    )
+    ws3['A2'].font = Font(italic=True, size=10)
+    ws3['A2'].alignment = Alignment(horizontal='center')
+
+    gap_headers = [
+        "Date",
+        "Time Slot (IST)",
+        "Shift",
+        "DB Records",
+        "SinglePlate\nLog Records",
+        "MultiPlate\nLog Records",
+        "Gap Type",
+    ]
+    for col, h in enumerate(gap_headers, 1):
+        cell = ws3.cell(row=4, column=col, value=h)
+        cell.font = header_font
+        cell.fill = header_fill
+        cell.alignment = header_align
+        cell.border = thin_border
+    ws3.row_dimensions[4].height = 40
+
+    # Read ALL log activity (not just batch lines) for gap analysis
+    print("\n  [Gap Analysis] Reading all log timestamps...")
+    single_log_all = parse_log_all_timestamps(SINGLE_PLATE_LOG, from_dt, to_dt)
+    multi_log_all = parse_log_all_timestamps(MULTI_PLATE_LOG, from_dt, to_dt)
+    print(f"    SinglePlateModel: {len(single_log_all)} log entries in range")
+    print(f"    MultiplatePlateModel: {len(multi_log_all)} log entries in range")
+
+    # Build 10-minute slot counts
+    slot_minutes = 10
+    slot_delta = timedelta(minutes=slot_minutes)
+
+    # Index DB data into slots
+    db_slots = defaultdict(int)
+    for ist_dt, shift, bunch_qty in db_data:
+        # Floor to nearest 10-min slot
+        slot_start = ist_dt.replace(
+            minute=(ist_dt.minute // slot_minutes) * slot_minutes,
+            second=0, microsecond=0
+        )
+        db_slots[slot_start] += 1
+
+    # Index single plate log data into slots (all activity)
+    single_slots = defaultdict(int)
+    for ist_dt in single_log_all:
+        slot_start = ist_dt.replace(
+            minute=(ist_dt.minute // slot_minutes) * slot_minutes,
+            second=0, microsecond=0
+        )
+        single_slots[slot_start] += 1
+
+    # Index multi plate log data into slots (all activity)
+    multi_slots = defaultdict(int)
+    for ist_dt in multi_log_all:
+        slot_start = ist_dt.replace(
+            minute=(ist_dt.minute // slot_minutes) * slot_minutes,
+            second=0, microsecond=0
+        )
+        multi_slots[slot_start] += 1
+
+    # Walk through every 10-min slot in range, only emit mismatches
+    gap_row = 5
+    current_slot = from_dt.replace(
+        minute=(from_dt.minute // slot_minutes) * slot_minutes,
+        second=0, microsecond=0
+    )
+
+    while current_slot <= to_dt:
+        db_count = db_slots.get(current_slot, 0)
+        single_count = single_slots.get(current_slot, 0)
+        multi_count = multi_slots.get(current_slot, 0)
+        log_count = single_count + multi_count
+
+        has_db = db_count > 0
+        has_log = log_count > 0
+
+        # Only show mismatches
+        if has_db != has_log:
+            if has_log and not has_db:
+                gap_type = "LOG ONLY"
+            else:
+                gap_type = "DB ONLY"
+
+            shift, shift_date = get_shift_and_date(current_slot)
+            slot_end = current_slot + slot_delta
+            time_label = (
+                f"{current_slot.strftime('%H:%M')} - "
+                f"{slot_end.strftime('%H:%M')}"
+            )
+
+            gap_values = [
+                current_slot.strftime("%d-%m-%Y"),
+                time_label,
+                shift,
+                db_count,
+                single_count,
+                multi_count,
+                gap_type,
+            ]
+
+            for col, val in enumerate(gap_values, 1):
+                cell = ws3.cell(row=gap_row, column=col, value=val)
+                cell.alignment = data_align
+                cell.border = thin_border
+
+                if col == 7:
+                    if gap_type == "LOG ONLY":
+                        cell.fill = yellow_fill
+                        cell.font = Font(bold=True, color='9C6500')
+                    elif gap_type == "DB ONLY":
+                        cell.fill = red_fill
+                        cell.font = Font(bold=True, color='9C0006')
+
+            gap_row += 1
+
+        current_slot += slot_delta
+
+    # If no gaps found, show a message
+    if gap_row == 5:
+        ws3.merge_cells('A5:G5')
+        ws3['A5'].value = "No data gaps found in the specified range."
+        ws3['A5'].font = Font(italic=True, size=11, color='006100')
+        ws3['A5'].fill = green_fill
+        ws3['A5'].alignment = Alignment(horizontal='center')
+
+    gap_col_widths = [14, 18, 8, 12, 16, 16, 14]
+    for i, w in enumerate(gap_col_widths, 1):
+        ws3.column_dimensions[get_column_letter(i)].width = w
 
     # Save
     date_tag = f"{from_dt.strftime('%d%b')}_to_{to_dt.strftime('%d%b%Y')}"
