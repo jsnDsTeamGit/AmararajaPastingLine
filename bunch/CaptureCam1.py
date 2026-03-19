@@ -4,6 +4,7 @@ import json
 import sys
 import time
 import uuid
+import tempfile
 import traceback
 import numpy as np
 from datetime import datetime,timezone
@@ -96,6 +97,44 @@ def get_device_info_by_serial(serial_number: str):
     log(f"Camera with serial {serial_number} not found.")
     return None
 
+def safe_read_json(main_path, bak_path):
+    """Read JSON with fallback to backup file."""
+    for path in [main_path, bak_path]:
+        try:
+            with open(path, "r") as f:
+                data = json.load(f)
+            log(f"Loaded sensor data from {path} ({len(data)} entries)")
+            return data
+        except (json.JSONDecodeError, FileNotFoundError):
+            continue
+    log("No existing sensor data found, starting fresh.")
+    return {}
+
+def safe_write_json(data, main_path, bak_path):
+    """Write JSON atomically using temp file + rename."""
+    tmp_fd, tmp_path = tempfile.mkstemp(dir=os.path.dirname(main_path) or ".", suffix=".tmp")
+    try:
+        with os.fdopen(tmp_fd, "w") as f:
+            json.dump(data, f, indent=4)
+            f.flush()
+            os.fsync(f.fileno())
+
+        if os.path.exists(main_path):
+            os.replace(main_path, bak_path)
+
+        os.replace(tmp_path, main_path)
+
+    except Exception as e:
+        log(f"ERROR writing {main_path}: {e}")
+        # If main is gone but backup exists, restore it
+        if not os.path.exists(main_path) and os.path.exists(bak_path):
+            try:
+                os.replace(bak_path, main_path)
+            except Exception:
+                pass
+        if os.path.exists(tmp_path):
+            os.remove(tmp_path)
+        
 def startCam():
     try:
         deviceList = MV_CC_DEVICE_INFO_LIST()
@@ -183,11 +222,11 @@ def startCam():
         data_buf = (c_ubyte * data_size)()
 
         SENSOR_TIMEOUT = 60
-        try:
-            with open("sensorTrigerBunch.json","r") as f:
-                sensorTrigerData = json.load(f)
-        except (json.JSONDecodeError, FileNotFoundError):
-            sensorTrigerData = {}
+        bak_path = "sensorTrigerPlate.json.bak"
+        main_path = "sensorTrigerPlate.json"
+       
+        sensorTrigerData = safe_read_json(main_path, bak_path)
+
         if sensorTrigerData:
             idxValue = max(map(int, sensorTrigerData.keys()))
         else:
@@ -270,17 +309,7 @@ def startCam():
                         last_entry["duration_seconds"] = round(now - last_entry["start_time"], 2)
                         last_entry["trigger_count"] += 1
                         
-                bak_path = "sensorTrigerBunch.json.bak"
-                main_path = "sensorTrigerBunch.json"
-                try:
-                    # Write to .bak first as a safety net
-                    with open(bak_path, "w") as f:
-                        json.dump(sensorTrigerData, f, indent=4)
-                    # Then update the main .json file
-                    with open(main_path, "w") as f:
-                        json.dump(sensorTrigerData, f, indent=4)
-                except Exception as e:
-                    log(f"ERROR writing sensorTrigerBunch.json: {e}. Backup available at {bak_path}")                
+                safe_write_json(sensorTrigerData, main_path, bak_path)                
 
             else:
                 # log(f"GetOneFrameTimeout failed: ret={hex(ret)}")
