@@ -151,34 +151,6 @@ def get_shift_and_date(ist_dt):
 
 # -- Parsers ----------------------------------------------------------------
 
-def parse_log_all_timestamps(filepath, from_dt, to_dt):
-    """
-    Read ALL timestamped lines from a log file (any line with [YYYY-MM-DD HH:MM:SS]).
-    Timestamps are in UTC -> converted to IST, then filtered by range.
-    Returns list of IST datetimes for every logged activity in range.
-    Used for gap analysis to detect any activity, not just batch lines.
-    """
-    results = []
-    if not os.path.exists(filepath):
-        return results
-
-    ts_pattern = re.compile(r'\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\]')
-
-    with open(filepath, 'r', encoding='utf-8', errors='ignore') as f:
-        for line in f:
-            m = ts_pattern.search(line)
-            if m:
-                try:
-                    utc_dt = datetime.strptime(m.group(1), "%Y-%m-%d %H:%M:%S")
-                    ist_dt = utc_to_ist(utc_dt)
-                    if is_in_range(ist_dt, from_dt, to_dt):
-                        results.append(ist_dt)
-                except ValueError:
-                    continue
-
-    return results
-
-
 def parse_model_log(filepath, from_dt, to_dt):
     """
     Parse SinglePlateModel.log or MultiplatePlateModel.log.
@@ -782,14 +754,7 @@ def generate_report(from_date=None, to_date=None, csv_path=None):
         cell.border = thin_border
     ws3.row_dimensions[4].height = 40
 
-    # Read ALL log activity (not just batch lines) for gap analysis
-    print("\n  [Gap Analysis] Reading all log timestamps...")
-    single_log_all = parse_log_all_timestamps(SINGLE_PLATE_LOG, from_dt, to_dt)
-    multi_log_all = parse_log_all_timestamps(MULTI_PLATE_LOG, from_dt, to_dt)
-    print(f"    SinglePlateModel: {len(single_log_all)} log entries in range")
-    print(f"    MultiplatePlateModel: {len(multi_log_all)} log entries in range")
-
-    # Build 10-minute slot counts
+    # Build 10-minute slot counts using already-parsed batch data
     slot_minutes = 10
     slot_delta = timedelta(minutes=slot_minutes)
 
@@ -803,18 +768,18 @@ def generate_report(from_date=None, to_date=None, csv_path=None):
         )
         db_slots[slot_start] += 1
 
-    # Index single plate log data into slots (all activity)
+    # Index single plate log data into slots (batch lines with Moved/Deleted)
     single_slots = defaultdict(int)
-    for ist_dt in single_log_all:
+    for ist_dt, moved, deleted, total in single_plate_data:
         slot_start = ist_dt.replace(
             minute=(ist_dt.minute // slot_minutes) * slot_minutes,
             second=0, microsecond=0
         )
         single_slots[slot_start] += 1
 
-    # Index multi plate log data into slots (all activity)
+    # Index multi plate log data into slots (batch lines with Moved/Deleted)
     multi_slots = defaultdict(int)
-    for ist_dt in multi_log_all:
+    for ist_dt, moved, deleted, total in multi_plate_data:
         slot_start = ist_dt.replace(
             minute=(ist_dt.minute // slot_minutes) * slot_minutes,
             second=0, microsecond=0
