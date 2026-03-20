@@ -722,13 +722,13 @@ def generate_report(from_date=None, to_date=None, csv_path=None):
     # -- Data Gap Analysis Sheet ------------------------------------------------
     ws3 = wb.create_sheet("Data Gap Analysis")
 
-    ws3.merge_cells('A1:G1')
+    ws3.merge_cells('A1:K1')
     ws3['A1'].value = "Data Gap Analysis (10-Minute Intervals)"
     ws3['A1'].font = Font(bold=True, size=14, color='2F5496')
     ws3['A1'].alignment = Alignment(horizontal='center')
     ws3.row_dimensions[1].height = 30
 
-    ws3.merge_cells('A2:G2')
+    ws3.merge_cells('A2:K2')
     ws3['A2'].value = (
         f"Range: {from_dt.strftime('%d-%m-%Y %H:%M')} to "
         f"{to_dt.strftime('%d-%m-%Y %H:%M')} IST  |  "
@@ -738,13 +738,17 @@ def generate_report(from_date=None, to_date=None, csv_path=None):
     ws3['A2'].alignment = Alignment(horizontal='center')
 
     gap_headers = [
-        "Date",
-        "Time Slot (IST)",
-        "Shift",
-        "DB Records",
-        "SinglePlate\nLog Records",
-        "MultiPlate\nLog Records",
-        "Gap Type",
+        "Date",                             # A (col 1)
+        "Time Slot (IST)",                  # B (col 2)
+        "Shift",                            # C (col 3)
+        "DB Records",                       # D (col 4)
+        "DB Bunches",                       # E (col 5)
+        "DB Plates",                        # F (col 6)
+        "SinglePlate\nLog Records",         # G (col 7)
+        "SinglePlate\nCaptured Plates",     # H (col 8)
+        "MultiPlate\nLog Records",          # I (col 9)
+        "MultiPlate\nCaptured Plates",      # J (col 10)
+        "Gap Type",                         # K (col 11)
     ]
     for col, h in enumerate(gap_headers, 1):
         cell = ws3.cell(row=4, column=col, value=h)
@@ -759,7 +763,9 @@ def generate_report(from_date=None, to_date=None, csv_path=None):
     slot_delta = timedelta(minutes=slot_minutes)
 
     # Index DB data into slots
-    db_slots = defaultdict(int)
+    db_slots = defaultdict(int)             # record count
+    db_bunch_slots = defaultdict(int)       # bunch count (each record = 1 bunch)
+    db_plate_slots = defaultdict(int)       # plate count (bunch_qty per record)
     for ist_dt, shift, bunch_qty in db_data:
         # Floor to nearest 10-min slot
         slot_start = ist_dt.replace(
@@ -767,24 +773,30 @@ def generate_report(from_date=None, to_date=None, csv_path=None):
             second=0, microsecond=0
         )
         db_slots[slot_start] += 1
+        db_bunch_slots[slot_start] += 1
+        db_plate_slots[slot_start] += bunch_qty
 
     # Index single plate log data into slots (batch lines with Moved/Deleted)
-    single_slots = defaultdict(int)
+    single_slots = defaultdict(int)         # log record count
+    single_plate_slots = defaultdict(int)   # captured plate count (Moved + Deleted)
     for ist_dt, moved, deleted, total in single_plate_data:
         slot_start = ist_dt.replace(
             minute=(ist_dt.minute // slot_minutes) * slot_minutes,
             second=0, microsecond=0
         )
         single_slots[slot_start] += 1
+        single_plate_slots[slot_start] += total
 
     # Index multi plate log data into slots (batch lines with Moved/Deleted)
-    multi_slots = defaultdict(int)
+    multi_slots = defaultdict(int)          # log record count
+    multi_plate_slots = defaultdict(int)    # captured plate count (Moved + Deleted)
     for ist_dt, moved, deleted, total in multi_plate_data:
         slot_start = ist_dt.replace(
             minute=(ist_dt.minute // slot_minutes) * slot_minutes,
             second=0, microsecond=0
         )
         multi_slots[slot_start] += 1
+        multi_plate_slots[slot_start] += total
 
     # Walk through every 10-min slot in range, only emit mismatches
     gap_row = 5
@@ -816,14 +828,23 @@ def generate_report(from_date=None, to_date=None, csv_path=None):
                 f"{slot_end.strftime('%H:%M')}"
             )
 
+            db_bunches_slot = db_bunch_slots.get(current_slot, 0)
+            db_plates_slot = db_plate_slots.get(current_slot, 0)
+            single_plates = single_plate_slots.get(current_slot, 0)
+            multi_plates = multi_plate_slots.get(current_slot, 0)
+
             gap_values = [
-                current_slot.strftime("%d-%m-%Y"),
-                time_label,
-                shift,
-                db_count,
-                single_count,
-                multi_count,
-                gap_type,
+                current_slot.strftime("%d-%m-%Y"),  # col 1
+                time_label,                          # col 2
+                shift,                               # col 3
+                db_count,                            # col 4
+                db_bunches_slot,                     # col 5
+                db_plates_slot,                      # col 6
+                single_count,                        # col 7
+                single_plates,                       # col 8
+                multi_count,                         # col 9
+                multi_plates,                        # col 10
+                gap_type,                            # col 11
             ]
 
             for col, val in enumerate(gap_values, 1):
@@ -831,7 +852,7 @@ def generate_report(from_date=None, to_date=None, csv_path=None):
                 cell.alignment = data_align
                 cell.border = thin_border
 
-                if col == 7:
+                if col == 11:
                     if gap_type == "LOG ONLY":
                         cell.fill = yellow_fill
                         cell.font = Font(bold=True, color='9C6500')
@@ -845,13 +866,13 @@ def generate_report(from_date=None, to_date=None, csv_path=None):
 
     # If no gaps found, show a message
     if gap_row == 5:
-        ws3.merge_cells('A5:G5')
+        ws3.merge_cells('A5:K5')
         ws3['A5'].value = "No data gaps found in the specified range."
         ws3['A5'].font = Font(italic=True, size=11, color='006100')
         ws3['A5'].fill = green_fill
         ws3['A5'].alignment = Alignment(horizontal='center')
 
-    gap_col_widths = [14, 18, 8, 12, 16, 16, 14]
+    gap_col_widths = [14, 18, 8, 12, 14, 14, 16, 18, 16, 18, 14]
     for i, w in enumerate(gap_col_widths, 1):
         ws3.column_dimensions[get_column_letter(i)].width = w
 
