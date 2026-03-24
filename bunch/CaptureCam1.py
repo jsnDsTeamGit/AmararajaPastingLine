@@ -222,8 +222,8 @@ def startCam():
         data_buf = (c_ubyte * data_size)()
 
         SENSOR_TIMEOUT = 60
-        bak_path = "sensorTrigerPlate.json.bak"
-        main_path = "sensorTrigerPlate.json"
+        bak_path = "sensorTrigerBunch.json.bak"
+        main_path = "sensorTrigerBunch.json"
        
         sensorTrigerData = safe_read_json(main_path, bak_path)
 
