@@ -231,22 +231,42 @@ def startCam1():
         data_buf = (c_ubyte * data_size)()
 
         SENSOR_TIMEOUT = 60
-        bak_path = "sensorTrigerPlate.json.bak"
-        main_path = "sensorTrigerPlate.json"
+        bak_path = "sensorTrigerPlateV2.json.bak"
+        main_path = "sensorTrigerPlateV2.json"
        
         sensorTrigerData = safe_read_json(main_path, bak_path)
-
+        
+        WRITE_INTERVAL = 120 # seconds
+        trigger_count = 0
+        lastTriggerTime = time.time()
+        lastTriggerTime_Dt = datetime.now().isoformat(timespec="seconds")
+        idxValue = 0
         if sensorTrigerData:
             idxValue = max(map(int, sensorTrigerData.keys()))
-        else:
-            idxValue = 1
+
         while True:
             # Check camera connection every minute
             if time.time() - last_connection_check >= CONNECTION_CHECK_INTERVAL:
                 if not cam.MV_CC_IsDeviceConnected():
                     log(f"WARNING: Camera disconnected!")
                 last_connection_check = time.time()
-
+            now = time.time()
+            if now - lastTriggerTime > WRITE_INTERVAL and trigger_count > 10:
+                idxValue += 1
+                sensorTrigerData[str(idxValue)] = {
+                    "startTime": lastTriggerTime_Dt, 
+                    "endTime": datetime.now().isoformat(timespec="seconds"),
+                    "triggerCount": trigger_count
+                }
+                try:
+                    safe_write_json(sensorTrigerData, main_path, bak_path)
+                    lastTriggerTime = now
+                    trigger_count = 0
+                except Exception as e:
+                    log(f"Error writing JSON: {e}")
+                    lastTriggerTime = now
+                    trigger_count = 0
+                    pass
             ret = cam.MV_CC_GetOneFrameTimeout(data_buf, data_size, stFrameInfo, 1000)
             if ret == 0:
                 if stEnumValue.nCurValue in [
@@ -271,45 +291,7 @@ def startCam1():
 
                 imPath = f"{saveFolder}/{uuid.uuid4()}.jpg"
                 cv2.imwrite(imPath, image)
-                now = time.time()
-                now_dt = datetime.now().isoformat(timespec="seconds")
-
-                if not sensorTrigerData:
-                    # First ever entry
-                    sensorTrigerData[str(idxValue)] = {
-                        "start_time": now,
-                        "start_dateTime": now_dt,
-                        "end_time": now,
-                        "end_dateTime": now_dt,
-                        "duration_seconds": 0,
-                        "trigger_count": 1,
-                        "timeDiff": 0
-                    }
-
-                else:
-                    last_entry = sensorTrigerData[str(idxValue)]
-                    timeDiff = now - last_entry["end_time"]  # gap since last frame
-
-                    if timeDiff > SENSOR_TIMEOUT:
-                        # ── New session ──
-                        idxValue += 1
-                        sensorTrigerData[str(idxValue)] = {
-                            "start_time": now,
-                            "start_dateTime": now_dt,
-                            "end_time": now,
-                            "end_dateTime": now_dt,
-                            "duration_seconds": 0,
-                            "trigger_count": 1,
-                            "timeDiff": round(timeDiff, 2)   # gap from previous session's last frame
-                        }
-                    else:
-                        # ── Same session — only update end_time and duration ──
-                        last_entry["end_time"] = now
-                        last_entry["end_dateTime"] = now_dt
-                        last_entry["duration_seconds"] = round(now - last_entry["start_time"], 2)
-                        last_entry["trigger_count"] += 1
-
-                safe_write_json(sensorTrigerData, main_path, bak_path)
+                trigger_count += 1                 
             else:
                 # log(f"GetOneFrameTimeout failed: ret={hex(ret)}")
                 time.sleep(0.05)
@@ -321,4 +303,8 @@ def startCam1():
         print("Error while capturing Image.....")
         log(traceback.format_exc())
         time.sleep(5)
+        cam.MV_CC_StopGrabbing()
+        cam.MV_CC_CloseDevice()
+        cam.MV_CC_DestroyHandle()
         sys.exit(1)
+
