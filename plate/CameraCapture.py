@@ -261,10 +261,12 @@ def startCam1():
                 try:
                     safe_write_json(sensorTrigerData, main_path, bak_path)
                     lastTriggerTime = now
+                    lastTriggerTime_Dt = datetime.now().isoformat(timespec="seconds")
                     trigger_count = 0
                 except Exception as e:
                     log(f"Error writing JSON: {e}")
                     lastTriggerTime = now
+                    lastTriggerTime_Dt = datetime.now().isoformat(timespec="seconds")
                     trigger_count = 0
                     pass
             ret = cam.MV_CC_GetOneFrameTimeout(data_buf, data_size, stFrameInfo, 1000)
