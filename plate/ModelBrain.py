@@ -319,4 +319,4 @@ def start_pipeline():
 
 
 # # -------------------- Boot --------------------
-start_pipeline()
+# start_pipeline()
