@@ -19,8 +19,8 @@ commonDetails = {
         "sourceDetails": "Web",
         "languageToken": "en",
         "tenantId": localConfig.get("responseResult","").get("configDetails","").get("tenantId",""),
-        "siteId": localConfig.get("responseResult","").get("configDetails","").get("tenantId",""),
-        "siteUserId": localConfig.get("responseResult","").get("configDetails","").get("tenantId",""),
+        "siteId": localConfig.get("responseResult","").get("configDetails","").get("siteId",""),
+        "siteUserId": localConfig.get("responseResult","").get("configDetails","").get("siteUserId",""),
         "Master-Access-Id": "",
         "roleId": "2"
     }
