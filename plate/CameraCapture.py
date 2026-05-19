@@ -230,7 +230,6 @@ def startCam1():
         CONNECTION_CHECK_INTERVAL = 60  # seconds
         data_buf = (c_ubyte * data_size)()
 
-        SENSOR_TIMEOUT = 60
         bak_path = "sensorTrigerPlateV2.json.bak"
         main_path = "sensorTrigerPlateV2.json"
        

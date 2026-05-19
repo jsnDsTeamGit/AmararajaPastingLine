@@ -1,10 +1,12 @@
 import json
 import time
 import os
+import pyfiglet
+
 from datetime import datetime
 
 # ---------------- CONFIG ----------------
-LOG_FILE = "C:\GitRepository\AmararajaPastingLine\systemUpTimeLogger\system_uptime.json"
+LOG_FILE = r"D:\projects\amaraRaja_Lead\backup_code\LeadCodeLogics\systemUpTimeLogger\system_uptime.json"
 HEARTBEAT_INTERVAL = 1 * 60  # 1 minutes
 RETRY_DELAY = 2  # seconds
 MAX_RETRIES = 5
@@ -69,6 +71,9 @@ def save_json(data):
 
 
 def main():
+    print(pyfiglet.figlet_format("SYSTEM UPTIME LOGGER"))
+    print("DO NOT CLOSE THIS WINDOW!...")
+    print("===================================")
     system_start_time = now()
 
     data = load_json()

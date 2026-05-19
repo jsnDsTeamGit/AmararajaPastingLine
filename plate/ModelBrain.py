@@ -4,6 +4,7 @@ import sys
 import uuid
 import time
 import json
+import tempfile
 import threading
 import numpy as np
 from queue import Queue
@@ -23,6 +24,9 @@ os.makedirs(BASE_NEG_DIR, exist_ok=True)
 
 SOURCE_DIR  = r"LineData"
 EXTS = {".jpg", ".jpeg", ".png", ".bmp", ".tif", ".tiff"}
+
+CONTINUOUS_FAIL_THRESHOLD = 5
+CONTINUOUS_FAIL_COUNTER = 0
 
 # Scan & stability settings
 SCAN_INTERVAL_SEC = 0.20           # batch scans (slightly higher than 0.05 reduces overhead)
@@ -139,6 +143,7 @@ def FindImproperFilling(roi,lug,damage):
     return True
 
 def AnalyseImage(image, processId):
+    global CONTINUOUS_FAIL_COUNTER    
     h, w = image.shape[:2]
     predictionStatus, predictionDect = modelPredictor(model, image)
     imgId = f"{uuid.uuid4()}_{datetime.now().strftime('%Y%m%d%H%M%S%f')}"
@@ -189,10 +194,18 @@ def AnalyseImage(image, processId):
     filteredDamages = [i for i in predictionDect if i['name'] not in ['Plate Height', 'Lug Position','Frame bend','Light','Paste on Lug','Improper Filling'] and BBoxCheck(detectedRois[0], i)]
     filteredIMFilling = [i for i in predictionDect if i['name'] == 'Improper Filling' and FindImproperFilling(detectedRois[0],detectedLugs[0],i) and BBoxCheck(detectedRois[0],i) ]
     status = "Fail" if filteredDamages or filteredIMFilling else "Pass"
+    CONTINUOUS_FAIL_FLAG = False
+    if status == "Fail":
+        CONTINUOUS_FAIL_COUNTER += 1
+        if CONTINUOUS_FAIL_COUNTER >= CONTINUOUS_FAIL_THRESHOLD:
+            CONTINUOUS_FAIL_FLAG = True
+    else:
+        CONTINUOUS_FAIL_COUNTER = 0
+        CONTINUOUS_FAIL_FLAG = False
     filteredDamages.append(detectedRois[0])
     filteredDamages.append(detectedLugs[0])
     filteredDamages.extend(filteredIMFilling)
-    data = {"status": status, "height": h, "width": w, "processId": processId, "predictionData": filteredDamages}
+    data = {"status": status, "height": h, "width": w, "processId": processId, "continuousFailFlag": CONTINUOUS_FAIL_FLAG, "predictionData": filteredDamages}
     with open(os.path.join(ResultFolder, f"{imgId}.json"), "w") as f:
         json.dump(data, f, indent=4)
     imgSavePath = os.path.join(ResultFolder, f"{imgId}.jpg")

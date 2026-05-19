@@ -7,11 +7,10 @@ import uuid
 from utils import get_latest_plate_type_with_timeout,get_file_created_iso
 from datetime import datetime,timezone
 import random
-import traceback
 
 WATCH_FOLDER = r"ModelResults"
 OUTPUT_FOLDER = r"ApiData"
-BATCH_SIZE = 100
+BATCH_SIZE = 200
 
 batch_no = 0  # global batch counter
 
@@ -26,7 +25,7 @@ def log(msg: str):
         pass
 
 def compute_scaled_sampling(
-    N_base= 8820 , T_base=375,
+    N_base=8820, T_base=419,
     N_new=None, pass_frac=0.60, k=4, round_counts=True
 ):
     """
@@ -79,6 +78,7 @@ def compute_scaled_sampling(
 
 def get_pass_fail_counts(folder):
     pass_count, fail_count = 0, 0
+    continuous_fail_active = False
     json_files = [f for f in os.listdir(folder) if f.endswith(".json")]
     try:
         for jf in json_files:
@@ -88,12 +88,14 @@ def get_pass_fail_counts(folder):
                     pass_count += 1
                 else:
                     fail_count += 1
+                if data.get("continuousFailFlag", False):
+                    continuous_fail_active = True
     except:
         print(f)
     total = pass_count + fail_count
     pass_frac = pass_count / total if total > 0 else 0
     fail_frac = fail_count / total if total > 0 else 0
-    return pass_count, fail_count, pass_frac, fail_frac
+    return pass_count, fail_count, pass_frac, fail_frac, continuous_fail_active
 
 def move_selected_files(files, dest_folder):
     os.makedirs(dest_folder, exist_ok=True)
@@ -102,14 +104,21 @@ def move_selected_files(files, dest_folder):
 
 def process_batch(batch_folder, output_folder, batch_no):
     
-    pass_count, fail_count, pass_frac, fail_frac = get_pass_fail_counts(batch_folder)
+    pass_count, fail_count, pass_frac, fail_frac, continuous_fail_active = get_pass_fail_counts(batch_folder)
     total = pass_count + fail_count
     batchId = f"{uuid.uuid4()}_{datetime.now().strftime('%Y%m%d%H%M%S%f')}"
     # 🔥 Scaled sampling
     sampling = compute_scaled_sampling(N_new=total, pass_frac=pass_frac, k=4)
     move_pass = sampling["pass_count"]
     move_fail = sampling["fail_count"]
-
+    need_to_move = move_pass + move_fail
+    if continuous_fail_active:
+        if need_to_move >= fail_count:
+            fail_quota = fail_count
+            pass_quota = need_to_move - fail_quota
+        else:
+            fail_quota = need_to_move
+            pass_quota = 0
     moved = 0
     deleted = 0
     allJsonFiles = [f for f in os.listdir(batch_folder) if f.endswith(".json")]
@@ -138,34 +147,61 @@ def process_batch(batch_folder, output_folder, batch_no):
             newData["batchPassCount"] = pass_count
             newData["batchFailCount"] = fail_count
             newData["batchSize"] = BATCH_SIZE
-            if status == "pass" and move_pass > 0:
-                with open(os.path.join(batch_folder, jf), "w") as k:
-                    json.dump(newData,k,indent=4)
-                move_selected_files([json_path, img_path], output_folder)
-                move_pass -= 1
-                moved += 1
-            elif status == "fail" and move_fail > 0:
-                with open(os.path.join(batch_folder, jf), "w") as k:
-                    json.dump(newData,k,indent=4)
-                move_selected_files([json_path, img_path], output_folder)
-                move_fail -= 1
-                moved += 1
+
+            if continuous_fail_active:
+                if status == "fail" and fail_quota > 0:
+                    with open(os.path.join(batch_folder, jf), "w") as k:
+                        json.dump(newData,k,indent=4)
+                    move_selected_files([json_path, img_path], output_folder)
+                    fail_quota -= 1
+                    moved += 1  
+                elif status == "pass" and pass_quota > 0:
+                    with open(os.path.join(batch_folder, jf), "w") as k:
+                        json.dump(newData,k,indent=4)
+                    move_selected_files([json_path, img_path], output_folder)
+                    pass_quota -= 1
+                    moved += 1
             else:
-                for p in [json_path, img_path]:
-                    if os.path.exists(p):
-                        os.remove(p)
-                        deleted += 1
+                if status == "pass" and move_pass > 0:
+                    with open(os.path.join(batch_folder, jf), "w") as k:
+                        json.dump(newData,k,indent=4)
+                    move_selected_files([json_path, img_path], output_folder)
+                    move_pass -= 1
+                    moved += 1
+                elif status == "fail" and move_fail > 0:
+                    with open(os.path.join(batch_folder, jf), "w") as k:
+                        json.dump(newData,k,indent=4)
+                    move_selected_files([json_path, img_path], output_folder)
+                    move_fail -= 1
+                    moved += 1
+                else:
+                    for p in [json_path, img_path]:
+                        if os.path.exists(p):
+                            os.remove(p)
+                            deleted += 1
         except:
             continue
 
     # ✅ One single summary print line
-    log(
-    f"Batch {batch_no} | "
-    f"Pass%: {pass_frac*100:.2f} | Fail%: {fail_frac*100:.2f} | "
-    f"Moved: {sampling['total_count']} (Pass: {sampling['pass_count']}, Fail: {sampling['fail_count']}) | "
-    f"ClusterPass%: {round(sampling['p_percent'],2)}, ClusterFail%: {round(sampling['f_percent'],2)} | "
-    f"Deleted: {total - sampling['total_count']}"
-)
+    if not continuous_fail_active:
+        log(
+        f"Batch {batch_no} | "
+        f"Pass%: {pass_frac*100:.2f} | Fail%: {fail_frac*100:.2f} | "
+        f"Moved: {sampling['total_count']} (Pass: {sampling['pass_count']}, Fail: {sampling['fail_count']}) | "
+        f"ClusterPass%: {round(sampling['p_percent'],2)}, ClusterFail%: {round(sampling['f_percent'],2)} | "
+        f"Deleted: {total - sampling['total_count']} | "
+        f"ContinuousFailActive: {continuous_fail_active}"
+        )
+    else:
+        log(
+        f"Batch {batch_no} | "
+        f"Pass%: 0 | Fail%: 100 | "
+        f"Moved: {sampling['total_count']} (Pass: 0, Fail: {need_to_move}) | "
+        f"ClusterPass%: 0, ClusterFail%: 100 | "
+        f"Deleted: {total - need_to_move} | "
+        f"ContinuousFailActive: {continuous_fail_active}"
+        )
+
 
 def watch_folder():
     global batch_no
@@ -188,3 +224,5 @@ def watch_folder():
 
         time.sleep(1)
 
+# -------------------- Boot --------------------
+# watch_folder()

@@ -196,6 +196,8 @@ def createSaveJson(filepath):
     resultDetails["batchCount"] = imgData["batchSize"]
     resultDetails["batchPassCount"] = imgData.get("batchPassCount",0)
     resultDetails["batchFailCount"] = imgData.get("batchFailCount",0)
+    resultDetails["cameraPosition"] = imgData.get("cameraPosition","Unknown")
+    resultDetails["cameraIndex"] = imgData.get("cameraIndex",0)
     resultDetails["dateTime"] = get_file_created_iso(jsonPath)
     resultDetails["plateType"] = plateTypeData.get("plate_type", "Unknown")
     resultDetails["labelValue"] = {"annotatedDetails": GetAnnotatedDetails(imgData.get("predictionData",[]))}

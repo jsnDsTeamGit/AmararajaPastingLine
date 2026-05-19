@@ -29,6 +29,10 @@ os.makedirs(ResultFolder, exist_ok=True)
 SOURCE_DIR = r"LineData"
 EXTS = {".jpg", ".jpeg", ".png", ".bmp", ".tif", ".tiff"}
 
+CONTINUOUS_FAIL_THRESHOLD = 5
+CONTINUOUS_FAIL_COUNTER = 0
+
+
 # Scan & stability settings
 SCAN_INTERVAL_SEC = 0.20           # batch scans (slightly higher than 0.05 reduces overhead)
 FILE_STABILITY_WAIT = 0.12
@@ -117,7 +121,8 @@ def MaxRoi(detectedRois):
         areaData.append(w*h)
     return [detectedRois[np.argmax(areaData)]]
 
-def AnalyseImage(image, processId):
+def AnalyseImage(image, processId, camIdx, camPos):
+    global CONTINUOUS_FAIL_COUNTER
     h, w = image.shape[:2]
     predictionStatus, predictionDect = modelPredictor(model, image)
     imgId = f"{uuid.uuid4()}_{datetime.now().strftime('%Y%m%d%H%M%S%f')}"
@@ -142,6 +147,15 @@ def AnalyseImage(image, processId):
     detectedRois = MaxRoi(detectedRois)
     filteredDamages = [i for i in predictionDect if i['name'] not in ['ROI'] and BBoxCheck(detectedRois[0], i)]
     status = "Fail" if filteredDamages else "Pass"
+    CONTINUOUS_FAIL_FLAG = False
+    if status == "Fail":
+        CONTINUOUS_FAIL_COUNTER += 1
+        if CONTINUOUS_FAIL_COUNTER >= CONTINUOUS_FAIL_THRESHOLD:
+            CONTINUOUS_FAIL_FLAG = True
+    else:
+        CONTINUOUS_FAIL_COUNTER = 0
+        CONTINUOUS_FAIL_FLAG = False
+
     damagePlateCoords = []
     if filteredDamages:
         damagePlateCoords = DamagedPlateCoords(detectedRois[0]["box"], filteredDamages)
@@ -151,10 +165,12 @@ def AnalyseImage(image, processId):
         "height": h,
         "width": w,
         "processId": processId,
+        "continuousFailFlag": CONTINUOUS_FAIL_FLAG,
         "predictionData": damagePlateCoords,
+        "cameraIndex": camIdx,
+        "cameraPosition": camPos
     }
     filteredDamages.append(detectedRois[0])
-    data = {"status": status, "height": h, "width": w, "processId": processId, "predictionData": filteredDamages}
     with open(os.path.join(ResultFolder, f"{imgId}.json"), "w") as f:
         json.dump(data, f, indent=4)
     imgSavePath = os.path.join(ResultFolder, f"{imgId}.jpg")
@@ -263,9 +279,19 @@ def worker(idx: int):
                 continue
             imName = os.path.splitext(os.path.basename(path))[0]
             proc_id = imName.split("__")[-1]
+            cam_id = imName.split("__")[0]
+            if cam_id == "1":
+                cam_idx = 0 # catcher side camera
+                cam_pos = "Catcher Side Camera"
+            elif cam_id == "2":
+                cam_idx = 1 # opposite side camera
+                cam_pos = "Non-Catcher Side Camera"
+            else:
+                cam_idx = 2 # unknown camera
+                cam_pos = "Unknown Camera"
             ok = False
             try:
-                ok = bool(AnalyseImage(img, proc_id))
+                ok = bool(AnalyseImage(img, proc_id, cam_idx, cam_pos))
             except Exception as e:
                 log(f"❌ Worker-{idx} processing error for {path.name}: {e}")
                 ok = False

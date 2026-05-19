@@ -215,7 +215,6 @@ def startCam():
 
         stFrameInfo = MV_FRAME_OUT_INFO_EX()
         data_size = 1920 * 1200 * 3  # Max expected size (adjust if needed)
-        trigger = 0
 
         last_connection_check = time.time()
         CONNECTION_CHECK_INTERVAL = 60  # seconds        
@@ -241,12 +240,6 @@ def startCam():
 
             ret = cam.MV_CC_GetOneFrameTimeout(data_buf, data_size, stFrameInfo, 1000)
             if ret == 0:
-                if trigger == 1:
-                    trigger = 0
-                    pass
-                else:
-                    trigger = 1
-                    continue
                 if stEnumValue.nCurValue in [
                     PixelType_Gvsp_BayerRG8, PixelType_Gvsp_BayerBG8,
                     PixelType_Gvsp_BayerGB8, PixelType_Gvsp_BayerGR8

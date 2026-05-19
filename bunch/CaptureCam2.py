@@ -1,5 +1,7 @@
 import os
+import sys
 import cv2
+import sys
 import time
 import numpy as np
 from datetime import datetime,timezone
@@ -127,8 +129,8 @@ class HikCamera:
                 return False
 
             # --- Camera configuration (similar to your original) ---
-            self.cam.MV_CC_SetEnumValue("TriggerMode", 0)           # On
-            self.cam.MV_CC_SetEnumValue("TriggerSelector", 0)       # FrameStart
+            self.cam.MV_CC_SetEnumValue("TriggerMode", 1)           # On
+            # self.cam.MV_CC_SetEnumValue("TriggerSelector", 0)       # FrameStart
 
             if self.trigger_source.lower() == 'software':
                 # 7 is commonly Software trigger for Hikrobot; may vary by model
@@ -136,10 +138,10 @@ class HikCamera:
             else:
                 self.cam.MV_CC_SetEnumValue("TriggerSource", 0)     # Line0 (external)
 
-            try:
-                self.cam.MV_CC_SetEnumValue("TriggerActivation", 0) # Rising edge (if supported)
-            except:
-                pass
+            # try:
+            #     self.cam.MV_CC_SetEnumValue("TriggerActivation", 0) # Rising edge (if supported)
+            # except:
+            #     pass
 
             self.cam.MV_CC_SetEnumValue("AcquisitionMode", 2)       # Continuous
             self.cam.MV_CC_SetFloatValue("ExposureTime", float(self.exposure_us))
@@ -147,8 +149,8 @@ class HikCamera:
             self.cam.MV_CC_SetEnumValue("GainAuto", 0)              # Manual
             self.cam.MV_CC_SetBoolValue("AcquisitionFrameRateEnable", True)
             # You can set a realistic FPS if needed:
-            # self.cam.MV_CC_SetFloatValue("AcquisitionFrameRate", 30.0)
-
+            self.cam.MV_CC_SetFloatValue("AcquisitionFrameRate", 100000.0)
+            self.cam.MV_CC_SetEnumValue("ExposureAuto", 0)
             # Get pixel format
             stEnumValue = MVCC_ENUMVALUE()
             ret = self.cam.MV_CC_GetEnumValue("PixelFormat", stEnumValue)
@@ -271,7 +273,9 @@ def get_current_image(serialNo, trigger_source='Line0', timeout_ms=1000, rotate_
         _cam_singleton = HikCamera(
             serialNo=serialNo,
             trigger_source=trigger_source,
-            rotate_deg=rotate_deg
+            rotate_deg=rotate_deg, 
+            exposure_us=1000.0,
+            gain_db=20.0
         )
         if not _cam_singleton.open():
             log("Failed to open camera in get_current_image")
