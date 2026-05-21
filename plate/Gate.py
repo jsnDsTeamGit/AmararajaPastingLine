@@ -34,8 +34,7 @@ def delete_json_and_images(base_folder):
 
 delete_json_and_images("LineData")
 # delete_json_and_images(r"ModelResults")
-time.sleep(50)
-fetchUrl = "http://10.215.10.125:1001/ProcessRegistryEdgeFetch"
+fetchUrl = "https://api.web.inspectionone.ai/ProcessRegistryEdgeFetch"
 fetchApiData = {
     "commonDetails": {
                 "lat": "",
@@ -112,7 +111,13 @@ if localVersion != jsonVersion:
     restart_program()
 
 if __name__ == "__main__":
-    threading.Thread(target=SaveMain, name="SaveApi", daemon=False).start()
-    threading.Thread(target=watch_folder, name="BatchProcess", daemon=False).start()
-    threading.Thread(target=startCam1, name="Cam1", daemon=False).start()
-    threading.Thread(target=start_pipeline, name="ModelProcess", daemon=False).start()
+    threads = [
+            threading.Thread(target=SaveMain, name="SaveApi", daemon=False),
+            threading.Thread(target=watch_folder, name="BatchProcess", daemon=False),
+            # threading.Thread(target=startCam1, name="Cam1", daemon=False),
+            threading.Thread(target=start_pipeline, name="ModelProcess", daemon=False)
+        ]
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join()

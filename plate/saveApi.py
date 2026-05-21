@@ -13,7 +13,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # ========= CONFIG =========
 WATCH_FOLDER = r"ApiData"   # single folder
-saveUrl = "http://10.215.10.125:1001/ProcessRegistryEdgeSave"
+saveUrl = "https://api.web.inspectionone.ai/ProcessRegistryEdgeSave"
 
 POLL_INTERVAL_SEC = 0.5
 API_WORKERS = 8

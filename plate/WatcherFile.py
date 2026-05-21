@@ -140,6 +140,7 @@ def process_batch(batch_folder, output_folder, batch_no):
             newData["batchSize"] = BATCH_SIZE
             newData["batchPassCount"] = pass_count
             newData["batchFailCount"] = fail_count
+            newData["isBatchFailed"] = 1 if continuous_fail_active else 0
 
             if continuous_fail_active == True:
                 if status == "fail" and fail_quota > 0:
@@ -154,6 +155,12 @@ def process_batch(batch_folder, output_folder, batch_no):
                     move_selected_files([json_path, img_path], output_folder)
                     pass_quota -= 1
                     moved += 1
+                else:
+                    for p in [json_path, img_path]:
+                        if os.path.exists(p):
+                            os.remove(p)
+                            deleted += 1
+
             else:
                 if status == "pass" and move_pass > 0:
                     with open(os.path.join(batch_folder, jf), "w") as k:

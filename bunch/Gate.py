@@ -112,6 +112,7 @@ if __name__ == "__main__":
     threads = [
         threading.Thread(target=SaveMain, name="SaveApi", daemon=False),
         threading.Thread(target=watch_folder, name="Watcher", daemon=False),
+        threading.Thread(target=startCam, name="Cam1", daemon=False),
         threading.Thread(target=start_pipeline, name="ModelProcess", daemon=False),
     ]
     for t in threads:
