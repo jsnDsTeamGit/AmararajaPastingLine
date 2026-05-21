@@ -186,10 +186,12 @@ def createSaveJson(filepath):
         imgData = json.load(f)
     with open("lastPlateType.json", "r") as f:
         plateTypeData = json.load(f)
+    resultId = resultInValue.get(imgData.get("status","Negative"),3)
+    isBatchFailed = 1 if imgData.get("isBatchFailed", 0) ==1 and resultId ==2 else 0
     resultDetails["processId"] = imgData.get("processId","")
     resultDetails["id"] = imgId
     resultDetails["url"] = blobUrl
-    resultDetails["resultId"] = resultInValue.get(imgData.get("status","Negative"),3)
+    resultDetails["resultId"] = resultId
     resultDetails["height"] = imgData.get("height",0)
     resultDetails["width"] = imgData.get("width",0)
     resultDetails["batchId"] = imgData["batchId"]
@@ -197,9 +199,10 @@ def createSaveJson(filepath):
     resultDetails["batchPassCount"] = imgData.get("batchPassCount",0)
     resultDetails["batchFailCount"] = imgData.get("batchFailCount",0)
     resultDetails["cameraPosition"] = imgData.get("cameraPosition","Unknown")
-    resultDetails["cameraIndex"] = imgData.get("cameraIndex",0)
+    resultDetails["uniqueIndex"] = imgData.get("cameraIndex",0)
     resultDetails["dateTime"] = get_file_created_iso(jsonPath)
     resultDetails["plateType"] = plateTypeData.get("plate_type", "Unknown")
+    resultDetails["isBatchFailed"] = isBatchFailed
     resultDetails["labelValue"] = {"annotatedDetails": GetAnnotatedDetails(imgData.get("predictionData",[]))}
     ApiJson = {
         "commonDetails":commonDetails,
@@ -207,8 +210,3 @@ def createSaveJson(filepath):
 
     }
     return ApiJson
-
-
-
-        
-

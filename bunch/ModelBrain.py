@@ -31,6 +31,7 @@ EXTS = {".jpg", ".jpeg", ".png", ".bmp", ".tif", ".tiff"}
 
 CONTINUOUS_FAIL_THRESHOLD = 5
 CONTINUOUS_FAIL_COUNTER = 0
+PROCESS_ID_STATUS = {}
 
 
 # Scan & stability settings
@@ -121,16 +122,48 @@ def MaxRoi(detectedRois):
         areaData.append(w*h)
     return [detectedRois[np.argmax(areaData)]]
 
-def AnalyseImage(image, processId, camIdx, camPos):
+def check_continuous_fail(processId, status):
     global CONTINUOUS_FAIL_COUNTER
+    CONTINUOUS_FAIL_FLAG = False
+
+    # Initialize tracking for new processId
+    if processId not in PROCESS_ID_STATUS:
+        PROCESS_ID_STATUS[processId] = {"count": 0, "is_fail": False}
+
+    record = PROCESS_ID_STATUS[processId]
+    record["count"] += 1
+
+    # If this entry is Fail, mark the whole processId as Fail
+    if status == "Fail":
+        record["is_fail"] = True
+
+    # Both entries received -> decide and clean up
+    if record["count"] == 2:
+        is_fail = record["is_fail"]
+        del PROCESS_ID_STATUS[processId]   # remove to keep dict small
+
+        if is_fail:
+            CONTINUOUS_FAIL_COUNTER += 1
+            if CONTINUOUS_FAIL_COUNTER >= CONTINUOUS_FAIL_THRESHOLD:
+                CONTINUOUS_FAIL_FLAG = True
+        else:
+            # Both entries passed -> reset
+            CONTINUOUS_FAIL_COUNTER = 0
+            CONTINUOUS_FAIL_FLAG = False
+
+    return CONTINUOUS_FAIL_FLAG
+
+def AnalyseImage(image, processId, camIdx, camPos):
+    global CONTINUOUS_FAIL_COUNTER, PREVIOUS_PROCESSIDs
     h, w = image.shape[:2]
     predictionStatus, predictionDect = modelPredictor(model, image)
-    imgId = f"{uuid.uuid4()}_{datetime.now().strftime('%Y%m%d%H%M%S%f')}"
+    # imgId = f"{uuid.uuid4()}_{datetime.now().strftime('%Y%m%d%H%M%S%f')}"
+    imgId = f"{str(camIdx + 1)}__{processId}"
     if not predictionStatus:
         log(f"❌ Prediction failed for {processId}: {predictionDect}")
         os.makedirs("negativeImages", exist_ok=True)
         imPath = os.path.join("negativeImages", f"{imgId}.jpg")
-        cv2.imwrite(imPath, image)              
+        cv2.imwrite(imPath, image) 
         return "Success"
 
     for detection in predictionDect:
@@ -141,21 +174,14 @@ def AnalyseImage(image, processId, camIdx, camPos):
     if not detectedRois:
         os.makedirs("negativeImages", exist_ok=True)
         imPath = os.path.join("negativeImages", f"{imgId}.jpg")
-        cv2.imwrite(imPath, image)              
+        cv2.imwrite(imPath, image)  
         return "Success"
 
     detectedRois = MaxRoi(detectedRois)
     filteredDamages = [i for i in predictionDect if i['name'] not in ['ROI'] and BBoxCheck(detectedRois[0], i)]
     status = "Fail" if filteredDamages else "Pass"
-    CONTINUOUS_FAIL_FLAG = False
-    if status == "Fail":
-        CONTINUOUS_FAIL_COUNTER += 1
-        if CONTINUOUS_FAIL_COUNTER >= CONTINUOUS_FAIL_THRESHOLD:
-            CONTINUOUS_FAIL_FLAG = True
-    else:
-        CONTINUOUS_FAIL_COUNTER = 0
-        CONTINUOUS_FAIL_FLAG = False
-
+    CONTINUOUS_FAIL_FLAG = check_continuous_fail(processId, status)
+    
     damagePlateCoords = []
     if filteredDamages:
         damagePlateCoords = DamagedPlateCoords(detectedRois[0]["box"], filteredDamages)
